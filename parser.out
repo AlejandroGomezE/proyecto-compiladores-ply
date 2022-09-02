@@ -1,0 +1,1553 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> program
+Rule 1     program -> PROGRAM ID SEMICOLON global_declaration main_declaration
+Rule 2     global_declaration -> empty
+Rule 3     global_declaration -> global_declaration global_statement
+Rule 4     global_statement -> assign_statement
+Rule 5     global_statement -> declare_var
+Rule 6     global_statement -> print
+Rule 7     var_type -> FLOAT_TYPE
+Rule 8     var_type -> STRING_TYPE
+Rule 9     var_type -> BOOL_TYPE
+Rule 10    rel_operator -> GREATERTHAN
+Rule 11    rel_operator -> LESSTHAN
+Rule 12    rel_operator -> EQUALEQUAL
+Rule 13    rel_operator -> LESSTHANOREQUAL
+Rule 14    rel_operator -> GREATERTHANOREQUAL
+Rule 15    rel_operator -> NOTEQUAL
+Rule 16    assign_statement -> VAR var_type ID EQUAL expression SEMICOLON
+Rule 17    assign_statement -> ID EQUAL expression SEMICOLON
+Rule 18    expression -> exp
+Rule 19    expression -> exp rel_operator exp
+Rule 20    exp -> term
+Rule 21    exp -> term PLUS exp
+Rule 22    exp -> term MINUS exp
+Rule 23    term -> factor
+Rule 24    term -> factor TIMES term
+Rule 25    term -> factor DIVIDE term
+Rule 26    factor -> LPARENT expression RPARENT
+Rule 27    factor -> PLUS value
+Rule 28    factor -> MINUS value
+Rule 29    factor -> value
+Rule 30    value -> literal
+Rule 31    value -> reference
+Rule 32    reference -> ID
+Rule 33    literal -> FLOAT
+Rule 34    literal -> STRING
+Rule 35    literal -> TRUE
+Rule 36    literal -> FALSE
+Rule 37    declare_var -> VAR var_type ID SEMICOLON
+Rule 38    main_declaration -> MAIN LPARENT RPARENT LBRACKET statement_list RBRACKET SEMICOLON
+Rule 39    statement_list -> statement_list statement
+Rule 40    statement_list -> empty
+Rule 41    statement -> declare_var
+Rule 42    statement -> assign_statement
+Rule 43    statement -> if_condition
+Rule 44    statement -> print
+Rule 45    if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition
+Rule 46    else_condition -> ELSE LBRACKET statement_list RBRACKET
+Rule 47    else_condition -> empty
+Rule 48    print -> PRINT LPARENT expression RPARENT SEMICOLON
+Rule 49    empty -> <empty>
+
+Terminals, with rules where they appear
+
+BOOL_TYPE            : 9
+DIVIDE               : 25
+ELSE                 : 46
+EQUAL                : 16 17
+EQUALEQUAL           : 12
+FALSE                : 36
+FLOAT                : 33
+FLOAT_TYPE           : 7
+GREATERTHAN          : 10
+GREATERTHANOREQUAL   : 14
+ID                   : 1 16 17 32 37
+IF                   : 45
+LBRACKET             : 38 45 46
+LESSTHAN             : 11
+LESSTHANOREQUAL      : 13
+LPARENT              : 26 38 45 48
+MAIN                 : 38
+MINUS                : 22 28
+NOTEQUAL             : 15
+PLUS                 : 21 27
+PRINT                : 48
+PROGRAM              : 1
+RBRACKET             : 38 45 46
+RPARENT              : 26 38 45 48
+SEMICOLON            : 1 16 17 37 38 48
+STRING               : 34
+STRING_TYPE          : 8
+TIMES                : 24
+TRUE                 : 35
+VAR                  : 16 37
+error                : 
+
+Nonterminals, with rules where they appear
+
+assign_statement     : 4 42
+declare_var          : 5 41
+else_condition       : 45
+empty                : 2 40 47
+exp                  : 18 19 19 21 22
+expression           : 16 17 26 45 48
+factor               : 23 24 25
+global_declaration   : 1 3
+global_statement     : 3
+if_condition         : 43
+literal              : 30
+main_declaration     : 1
+print                : 6 44
+program              : 0
+reference            : 31
+rel_operator         : 19
+statement            : 39
+statement_list       : 38 39 45 46
+term                 : 20 21 22 24 25
+value                : 27 28 29
+var_type             : 16 37
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . program
+    (1) program -> . PROGRAM ID SEMICOLON global_declaration main_declaration
+
+    PROGRAM         shift and go to state 2
+
+    program                        shift and go to state 1
+
+state 1
+
+    (0) S' -> program .
+
+
+
+state 2
+
+    (1) program -> PROGRAM . ID SEMICOLON global_declaration main_declaration
+
+    ID              shift and go to state 3
+
+
+state 3
+
+    (1) program -> PROGRAM ID . SEMICOLON global_declaration main_declaration
+
+    SEMICOLON       shift and go to state 4
+
+
+state 4
+
+    (1) program -> PROGRAM ID SEMICOLON . global_declaration main_declaration
+    (2) global_declaration -> . empty
+    (3) global_declaration -> . global_declaration global_statement
+    (49) empty -> .
+
+    MAIN            reduce using rule 49 (empty -> .)
+    VAR             reduce using rule 49 (empty -> .)
+    ID              reduce using rule 49 (empty -> .)
+    PRINT           reduce using rule 49 (empty -> .)
+
+    global_declaration             shift and go to state 5
+    empty                          shift and go to state 6
+
+state 5
+
+    (1) program -> PROGRAM ID SEMICOLON global_declaration . main_declaration
+    (3) global_declaration -> global_declaration . global_statement
+    (38) main_declaration -> . MAIN LPARENT RPARENT LBRACKET statement_list RBRACKET SEMICOLON
+    (4) global_statement -> . assign_statement
+    (5) global_statement -> . declare_var
+    (6) global_statement -> . print
+    (16) assign_statement -> . VAR var_type ID EQUAL expression SEMICOLON
+    (17) assign_statement -> . ID EQUAL expression SEMICOLON
+    (37) declare_var -> . VAR var_type ID SEMICOLON
+    (48) print -> . PRINT LPARENT expression RPARENT SEMICOLON
+
+    MAIN            shift and go to state 10
+    VAR             shift and go to state 14
+    ID              shift and go to state 7
+    PRINT           shift and go to state 15
+
+    main_declaration               shift and go to state 8
+    global_statement               shift and go to state 9
+    assign_statement               shift and go to state 11
+    declare_var                    shift and go to state 12
+    print                          shift and go to state 13
+
+state 6
+
+    (2) global_declaration -> empty .
+
+    MAIN            reduce using rule 2 (global_declaration -> empty .)
+    VAR             reduce using rule 2 (global_declaration -> empty .)
+    ID              reduce using rule 2 (global_declaration -> empty .)
+    PRINT           reduce using rule 2 (global_declaration -> empty .)
+
+
+state 7
+
+    (17) assign_statement -> ID . EQUAL expression SEMICOLON
+
+    EQUAL           shift and go to state 16
+
+
+state 8
+
+    (1) program -> PROGRAM ID SEMICOLON global_declaration main_declaration .
+
+    $end            reduce using rule 1 (program -> PROGRAM ID SEMICOLON global_declaration main_declaration .)
+
+
+state 9
+
+    (3) global_declaration -> global_declaration global_statement .
+
+    MAIN            reduce using rule 3 (global_declaration -> global_declaration global_statement .)
+    VAR             reduce using rule 3 (global_declaration -> global_declaration global_statement .)
+    ID              reduce using rule 3 (global_declaration -> global_declaration global_statement .)
+    PRINT           reduce using rule 3 (global_declaration -> global_declaration global_statement .)
+
+
+state 10
+
+    (38) main_declaration -> MAIN . LPARENT RPARENT LBRACKET statement_list RBRACKET SEMICOLON
+
+    LPARENT         shift and go to state 17
+
+
+state 11
+
+    (4) global_statement -> assign_statement .
+
+    MAIN            reduce using rule 4 (global_statement -> assign_statement .)
+    VAR             reduce using rule 4 (global_statement -> assign_statement .)
+    ID              reduce using rule 4 (global_statement -> assign_statement .)
+    PRINT           reduce using rule 4 (global_statement -> assign_statement .)
+
+
+state 12
+
+    (5) global_statement -> declare_var .
+
+    MAIN            reduce using rule 5 (global_statement -> declare_var .)
+    VAR             reduce using rule 5 (global_statement -> declare_var .)
+    ID              reduce using rule 5 (global_statement -> declare_var .)
+    PRINT           reduce using rule 5 (global_statement -> declare_var .)
+
+
+state 13
+
+    (6) global_statement -> print .
+
+    MAIN            reduce using rule 6 (global_statement -> print .)
+    VAR             reduce using rule 6 (global_statement -> print .)
+    ID              reduce using rule 6 (global_statement -> print .)
+    PRINT           reduce using rule 6 (global_statement -> print .)
+
+
+state 14
+
+    (16) assign_statement -> VAR . var_type ID EQUAL expression SEMICOLON
+    (37) declare_var -> VAR . var_type ID SEMICOLON
+    (7) var_type -> . FLOAT_TYPE
+    (8) var_type -> . STRING_TYPE
+    (9) var_type -> . BOOL_TYPE
+
+    FLOAT_TYPE      shift and go to state 19
+    STRING_TYPE     shift and go to state 20
+    BOOL_TYPE       shift and go to state 21
+
+    var_type                       shift and go to state 18
+
+state 15
+
+    (48) print -> PRINT . LPARENT expression RPARENT SEMICOLON
+
+    LPARENT         shift and go to state 22
+
+
+state 16
+
+    (17) assign_statement -> ID EQUAL . expression SEMICOLON
+    (18) expression -> . exp
+    (19) expression -> . exp rel_operator exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    expression                     shift and go to state 24
+    exp                            shift and go to state 25
+    term                           shift and go to state 26
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 17
+
+    (38) main_declaration -> MAIN LPARENT . RPARENT LBRACKET statement_list RBRACKET SEMICOLON
+
+    RPARENT         shift and go to state 38
+
+
+state 18
+
+    (16) assign_statement -> VAR var_type . ID EQUAL expression SEMICOLON
+    (37) declare_var -> VAR var_type . ID SEMICOLON
+
+    ID              shift and go to state 39
+
+
+state 19
+
+    (7) var_type -> FLOAT_TYPE .
+
+    ID              reduce using rule 7 (var_type -> FLOAT_TYPE .)
+
+
+state 20
+
+    (8) var_type -> STRING_TYPE .
+
+    ID              reduce using rule 8 (var_type -> STRING_TYPE .)
+
+
+state 21
+
+    (9) var_type -> BOOL_TYPE .
+
+    ID              reduce using rule 9 (var_type -> BOOL_TYPE .)
+
+
+state 22
+
+    (48) print -> PRINT LPARENT . expression RPARENT SEMICOLON
+    (18) expression -> . exp
+    (19) expression -> . exp rel_operator exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    expression                     shift and go to state 40
+    exp                            shift and go to state 25
+    term                           shift and go to state 26
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 23
+
+    (32) reference -> ID .
+
+    TIMES           reduce using rule 32 (reference -> ID .)
+    DIVIDE          reduce using rule 32 (reference -> ID .)
+    PLUS            reduce using rule 32 (reference -> ID .)
+    MINUS           reduce using rule 32 (reference -> ID .)
+    GREATERTHAN     reduce using rule 32 (reference -> ID .)
+    LESSTHAN        reduce using rule 32 (reference -> ID .)
+    EQUALEQUAL      reduce using rule 32 (reference -> ID .)
+    LESSTHANOREQUAL reduce using rule 32 (reference -> ID .)
+    GREATERTHANOREQUAL reduce using rule 32 (reference -> ID .)
+    NOTEQUAL        reduce using rule 32 (reference -> ID .)
+    SEMICOLON       reduce using rule 32 (reference -> ID .)
+    RPARENT         reduce using rule 32 (reference -> ID .)
+
+
+state 24
+
+    (17) assign_statement -> ID EQUAL expression . SEMICOLON
+
+    SEMICOLON       shift and go to state 41
+
+
+state 25
+
+    (18) expression -> exp .
+    (19) expression -> exp . rel_operator exp
+    (10) rel_operator -> . GREATERTHAN
+    (11) rel_operator -> . LESSTHAN
+    (12) rel_operator -> . EQUALEQUAL
+    (13) rel_operator -> . LESSTHANOREQUAL
+    (14) rel_operator -> . GREATERTHANOREQUAL
+    (15) rel_operator -> . NOTEQUAL
+
+    SEMICOLON       reduce using rule 18 (expression -> exp .)
+    RPARENT         reduce using rule 18 (expression -> exp .)
+    GREATERTHAN     shift and go to state 43
+    LESSTHAN        shift and go to state 44
+    EQUALEQUAL      shift and go to state 45
+    LESSTHANOREQUAL shift and go to state 46
+    GREATERTHANOREQUAL shift and go to state 47
+    NOTEQUAL        shift and go to state 48
+
+    rel_operator                   shift and go to state 42
+
+state 26
+
+    (20) exp -> term .
+    (21) exp -> term . PLUS exp
+    (22) exp -> term . MINUS exp
+
+    GREATERTHAN     reduce using rule 20 (exp -> term .)
+    LESSTHAN        reduce using rule 20 (exp -> term .)
+    EQUALEQUAL      reduce using rule 20 (exp -> term .)
+    LESSTHANOREQUAL reduce using rule 20 (exp -> term .)
+    GREATERTHANOREQUAL reduce using rule 20 (exp -> term .)
+    NOTEQUAL        reduce using rule 20 (exp -> term .)
+    SEMICOLON       reduce using rule 20 (exp -> term .)
+    RPARENT         reduce using rule 20 (exp -> term .)
+    PLUS            shift and go to state 49
+    MINUS           shift and go to state 50
+
+
+state 27
+
+    (27) factor -> PLUS . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    value                          shift and go to state 51
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 28
+
+    (28) factor -> MINUS . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    value                          shift and go to state 52
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 29
+
+    (23) term -> factor .
+    (24) term -> factor . TIMES term
+    (25) term -> factor . DIVIDE term
+
+    PLUS            reduce using rule 23 (term -> factor .)
+    MINUS           reduce using rule 23 (term -> factor .)
+    GREATERTHAN     reduce using rule 23 (term -> factor .)
+    LESSTHAN        reduce using rule 23 (term -> factor .)
+    EQUALEQUAL      reduce using rule 23 (term -> factor .)
+    LESSTHANOREQUAL reduce using rule 23 (term -> factor .)
+    GREATERTHANOREQUAL reduce using rule 23 (term -> factor .)
+    NOTEQUAL        reduce using rule 23 (term -> factor .)
+    SEMICOLON       reduce using rule 23 (term -> factor .)
+    RPARENT         reduce using rule 23 (term -> factor .)
+    TIMES           shift and go to state 53
+    DIVIDE          shift and go to state 54
+
+
+state 30
+
+    (26) factor -> LPARENT . expression RPARENT
+    (18) expression -> . exp
+    (19) expression -> . exp rel_operator exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    expression                     shift and go to state 55
+    exp                            shift and go to state 25
+    term                           shift and go to state 26
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 31
+
+    (29) factor -> value .
+
+    TIMES           reduce using rule 29 (factor -> value .)
+    DIVIDE          reduce using rule 29 (factor -> value .)
+    PLUS            reduce using rule 29 (factor -> value .)
+    MINUS           reduce using rule 29 (factor -> value .)
+    GREATERTHAN     reduce using rule 29 (factor -> value .)
+    LESSTHAN        reduce using rule 29 (factor -> value .)
+    EQUALEQUAL      reduce using rule 29 (factor -> value .)
+    LESSTHANOREQUAL reduce using rule 29 (factor -> value .)
+    GREATERTHANOREQUAL reduce using rule 29 (factor -> value .)
+    NOTEQUAL        reduce using rule 29 (factor -> value .)
+    SEMICOLON       reduce using rule 29 (factor -> value .)
+    RPARENT         reduce using rule 29 (factor -> value .)
+
+
+state 32
+
+    (30) value -> literal .
+
+    TIMES           reduce using rule 30 (value -> literal .)
+    DIVIDE          reduce using rule 30 (value -> literal .)
+    PLUS            reduce using rule 30 (value -> literal .)
+    MINUS           reduce using rule 30 (value -> literal .)
+    GREATERTHAN     reduce using rule 30 (value -> literal .)
+    LESSTHAN        reduce using rule 30 (value -> literal .)
+    EQUALEQUAL      reduce using rule 30 (value -> literal .)
+    LESSTHANOREQUAL reduce using rule 30 (value -> literal .)
+    GREATERTHANOREQUAL reduce using rule 30 (value -> literal .)
+    NOTEQUAL        reduce using rule 30 (value -> literal .)
+    SEMICOLON       reduce using rule 30 (value -> literal .)
+    RPARENT         reduce using rule 30 (value -> literal .)
+
+
+state 33
+
+    (31) value -> reference .
+
+    TIMES           reduce using rule 31 (value -> reference .)
+    DIVIDE          reduce using rule 31 (value -> reference .)
+    PLUS            reduce using rule 31 (value -> reference .)
+    MINUS           reduce using rule 31 (value -> reference .)
+    GREATERTHAN     reduce using rule 31 (value -> reference .)
+    LESSTHAN        reduce using rule 31 (value -> reference .)
+    EQUALEQUAL      reduce using rule 31 (value -> reference .)
+    LESSTHANOREQUAL reduce using rule 31 (value -> reference .)
+    GREATERTHANOREQUAL reduce using rule 31 (value -> reference .)
+    NOTEQUAL        reduce using rule 31 (value -> reference .)
+    SEMICOLON       reduce using rule 31 (value -> reference .)
+    RPARENT         reduce using rule 31 (value -> reference .)
+
+
+state 34
+
+    (33) literal -> FLOAT .
+
+    TIMES           reduce using rule 33 (literal -> FLOAT .)
+    DIVIDE          reduce using rule 33 (literal -> FLOAT .)
+    PLUS            reduce using rule 33 (literal -> FLOAT .)
+    MINUS           reduce using rule 33 (literal -> FLOAT .)
+    GREATERTHAN     reduce using rule 33 (literal -> FLOAT .)
+    LESSTHAN        reduce using rule 33 (literal -> FLOAT .)
+    EQUALEQUAL      reduce using rule 33 (literal -> FLOAT .)
+    LESSTHANOREQUAL reduce using rule 33 (literal -> FLOAT .)
+    GREATERTHANOREQUAL reduce using rule 33 (literal -> FLOAT .)
+    NOTEQUAL        reduce using rule 33 (literal -> FLOAT .)
+    SEMICOLON       reduce using rule 33 (literal -> FLOAT .)
+    RPARENT         reduce using rule 33 (literal -> FLOAT .)
+
+
+state 35
+
+    (34) literal -> STRING .
+
+    TIMES           reduce using rule 34 (literal -> STRING .)
+    DIVIDE          reduce using rule 34 (literal -> STRING .)
+    PLUS            reduce using rule 34 (literal -> STRING .)
+    MINUS           reduce using rule 34 (literal -> STRING .)
+    GREATERTHAN     reduce using rule 34 (literal -> STRING .)
+    LESSTHAN        reduce using rule 34 (literal -> STRING .)
+    EQUALEQUAL      reduce using rule 34 (literal -> STRING .)
+    LESSTHANOREQUAL reduce using rule 34 (literal -> STRING .)
+    GREATERTHANOREQUAL reduce using rule 34 (literal -> STRING .)
+    NOTEQUAL        reduce using rule 34 (literal -> STRING .)
+    SEMICOLON       reduce using rule 34 (literal -> STRING .)
+    RPARENT         reduce using rule 34 (literal -> STRING .)
+
+
+state 36
+
+    (35) literal -> TRUE .
+
+    TIMES           reduce using rule 35 (literal -> TRUE .)
+    DIVIDE          reduce using rule 35 (literal -> TRUE .)
+    PLUS            reduce using rule 35 (literal -> TRUE .)
+    MINUS           reduce using rule 35 (literal -> TRUE .)
+    GREATERTHAN     reduce using rule 35 (literal -> TRUE .)
+    LESSTHAN        reduce using rule 35 (literal -> TRUE .)
+    EQUALEQUAL      reduce using rule 35 (literal -> TRUE .)
+    LESSTHANOREQUAL reduce using rule 35 (literal -> TRUE .)
+    GREATERTHANOREQUAL reduce using rule 35 (literal -> TRUE .)
+    NOTEQUAL        reduce using rule 35 (literal -> TRUE .)
+    SEMICOLON       reduce using rule 35 (literal -> TRUE .)
+    RPARENT         reduce using rule 35 (literal -> TRUE .)
+
+
+state 37
+
+    (36) literal -> FALSE .
+
+    TIMES           reduce using rule 36 (literal -> FALSE .)
+    DIVIDE          reduce using rule 36 (literal -> FALSE .)
+    PLUS            reduce using rule 36 (literal -> FALSE .)
+    MINUS           reduce using rule 36 (literal -> FALSE .)
+    GREATERTHAN     reduce using rule 36 (literal -> FALSE .)
+    LESSTHAN        reduce using rule 36 (literal -> FALSE .)
+    EQUALEQUAL      reduce using rule 36 (literal -> FALSE .)
+    LESSTHANOREQUAL reduce using rule 36 (literal -> FALSE .)
+    GREATERTHANOREQUAL reduce using rule 36 (literal -> FALSE .)
+    NOTEQUAL        reduce using rule 36 (literal -> FALSE .)
+    SEMICOLON       reduce using rule 36 (literal -> FALSE .)
+    RPARENT         reduce using rule 36 (literal -> FALSE .)
+
+
+state 38
+
+    (38) main_declaration -> MAIN LPARENT RPARENT . LBRACKET statement_list RBRACKET SEMICOLON
+
+    LBRACKET        shift and go to state 56
+
+
+state 39
+
+    (16) assign_statement -> VAR var_type ID . EQUAL expression SEMICOLON
+    (37) declare_var -> VAR var_type ID . SEMICOLON
+
+    EQUAL           shift and go to state 57
+    SEMICOLON       shift and go to state 58
+
+
+state 40
+
+    (48) print -> PRINT LPARENT expression . RPARENT SEMICOLON
+
+    RPARENT         shift and go to state 59
+
+
+state 41
+
+    (17) assign_statement -> ID EQUAL expression SEMICOLON .
+
+    MAIN            reduce using rule 17 (assign_statement -> ID EQUAL expression SEMICOLON .)
+    VAR             reduce using rule 17 (assign_statement -> ID EQUAL expression SEMICOLON .)
+    ID              reduce using rule 17 (assign_statement -> ID EQUAL expression SEMICOLON .)
+    PRINT           reduce using rule 17 (assign_statement -> ID EQUAL expression SEMICOLON .)
+    RBRACKET        reduce using rule 17 (assign_statement -> ID EQUAL expression SEMICOLON .)
+    IF              reduce using rule 17 (assign_statement -> ID EQUAL expression SEMICOLON .)
+
+
+state 42
+
+    (19) expression -> exp rel_operator . exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    exp                            shift and go to state 60
+    term                           shift and go to state 26
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 43
+
+    (10) rel_operator -> GREATERTHAN .
+
+    LPARENT         reduce using rule 10 (rel_operator -> GREATERTHAN .)
+    PLUS            reduce using rule 10 (rel_operator -> GREATERTHAN .)
+    MINUS           reduce using rule 10 (rel_operator -> GREATERTHAN .)
+    FLOAT           reduce using rule 10 (rel_operator -> GREATERTHAN .)
+    STRING          reduce using rule 10 (rel_operator -> GREATERTHAN .)
+    TRUE            reduce using rule 10 (rel_operator -> GREATERTHAN .)
+    FALSE           reduce using rule 10 (rel_operator -> GREATERTHAN .)
+    ID              reduce using rule 10 (rel_operator -> GREATERTHAN .)
+
+
+state 44
+
+    (11) rel_operator -> LESSTHAN .
+
+    LPARENT         reduce using rule 11 (rel_operator -> LESSTHAN .)
+    PLUS            reduce using rule 11 (rel_operator -> LESSTHAN .)
+    MINUS           reduce using rule 11 (rel_operator -> LESSTHAN .)
+    FLOAT           reduce using rule 11 (rel_operator -> LESSTHAN .)
+    STRING          reduce using rule 11 (rel_operator -> LESSTHAN .)
+    TRUE            reduce using rule 11 (rel_operator -> LESSTHAN .)
+    FALSE           reduce using rule 11 (rel_operator -> LESSTHAN .)
+    ID              reduce using rule 11 (rel_operator -> LESSTHAN .)
+
+
+state 45
+
+    (12) rel_operator -> EQUALEQUAL .
+
+    LPARENT         reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+    PLUS            reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+    MINUS           reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+    FLOAT           reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+    STRING          reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+    TRUE            reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+    FALSE           reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+    ID              reduce using rule 12 (rel_operator -> EQUALEQUAL .)
+
+
+state 46
+
+    (13) rel_operator -> LESSTHANOREQUAL .
+
+    LPARENT         reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+    PLUS            reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+    MINUS           reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+    FLOAT           reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+    STRING          reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+    TRUE            reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+    FALSE           reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+    ID              reduce using rule 13 (rel_operator -> LESSTHANOREQUAL .)
+
+
+state 47
+
+    (14) rel_operator -> GREATERTHANOREQUAL .
+
+    LPARENT         reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+    PLUS            reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+    MINUS           reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+    FLOAT           reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+    STRING          reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+    TRUE            reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+    FALSE           reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+    ID              reduce using rule 14 (rel_operator -> GREATERTHANOREQUAL .)
+
+
+state 48
+
+    (15) rel_operator -> NOTEQUAL .
+
+    LPARENT         reduce using rule 15 (rel_operator -> NOTEQUAL .)
+    PLUS            reduce using rule 15 (rel_operator -> NOTEQUAL .)
+    MINUS           reduce using rule 15 (rel_operator -> NOTEQUAL .)
+    FLOAT           reduce using rule 15 (rel_operator -> NOTEQUAL .)
+    STRING          reduce using rule 15 (rel_operator -> NOTEQUAL .)
+    TRUE            reduce using rule 15 (rel_operator -> NOTEQUAL .)
+    FALSE           reduce using rule 15 (rel_operator -> NOTEQUAL .)
+    ID              reduce using rule 15 (rel_operator -> NOTEQUAL .)
+
+
+state 49
+
+    (21) exp -> term PLUS . exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    term                           shift and go to state 26
+    exp                            shift and go to state 61
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 50
+
+    (22) exp -> term MINUS . exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    term                           shift and go to state 26
+    exp                            shift and go to state 62
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 51
+
+    (27) factor -> PLUS value .
+
+    TIMES           reduce using rule 27 (factor -> PLUS value .)
+    DIVIDE          reduce using rule 27 (factor -> PLUS value .)
+    PLUS            reduce using rule 27 (factor -> PLUS value .)
+    MINUS           reduce using rule 27 (factor -> PLUS value .)
+    GREATERTHAN     reduce using rule 27 (factor -> PLUS value .)
+    LESSTHAN        reduce using rule 27 (factor -> PLUS value .)
+    EQUALEQUAL      reduce using rule 27 (factor -> PLUS value .)
+    LESSTHANOREQUAL reduce using rule 27 (factor -> PLUS value .)
+    GREATERTHANOREQUAL reduce using rule 27 (factor -> PLUS value .)
+    NOTEQUAL        reduce using rule 27 (factor -> PLUS value .)
+    SEMICOLON       reduce using rule 27 (factor -> PLUS value .)
+    RPARENT         reduce using rule 27 (factor -> PLUS value .)
+
+
+state 52
+
+    (28) factor -> MINUS value .
+
+    TIMES           reduce using rule 28 (factor -> MINUS value .)
+    DIVIDE          reduce using rule 28 (factor -> MINUS value .)
+    PLUS            reduce using rule 28 (factor -> MINUS value .)
+    MINUS           reduce using rule 28 (factor -> MINUS value .)
+    GREATERTHAN     reduce using rule 28 (factor -> MINUS value .)
+    LESSTHAN        reduce using rule 28 (factor -> MINUS value .)
+    EQUALEQUAL      reduce using rule 28 (factor -> MINUS value .)
+    LESSTHANOREQUAL reduce using rule 28 (factor -> MINUS value .)
+    GREATERTHANOREQUAL reduce using rule 28 (factor -> MINUS value .)
+    NOTEQUAL        reduce using rule 28 (factor -> MINUS value .)
+    SEMICOLON       reduce using rule 28 (factor -> MINUS value .)
+    RPARENT         reduce using rule 28 (factor -> MINUS value .)
+
+
+state 53
+
+    (24) term -> factor TIMES . term
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    factor                         shift and go to state 29
+    term                           shift and go to state 63
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 54
+
+    (25) term -> factor DIVIDE . term
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    factor                         shift and go to state 29
+    term                           shift and go to state 64
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 55
+
+    (26) factor -> LPARENT expression . RPARENT
+
+    RPARENT         shift and go to state 65
+
+
+state 56
+
+    (38) main_declaration -> MAIN LPARENT RPARENT LBRACKET . statement_list RBRACKET SEMICOLON
+    (39) statement_list -> . statement_list statement
+    (40) statement_list -> . empty
+    (49) empty -> .
+
+    RBRACKET        reduce using rule 49 (empty -> .)
+    VAR             reduce using rule 49 (empty -> .)
+    ID              reduce using rule 49 (empty -> .)
+    IF              reduce using rule 49 (empty -> .)
+    PRINT           reduce using rule 49 (empty -> .)
+
+    statement_list                 shift and go to state 66
+    empty                          shift and go to state 67
+
+state 57
+
+    (16) assign_statement -> VAR var_type ID EQUAL . expression SEMICOLON
+    (18) expression -> . exp
+    (19) expression -> . exp rel_operator exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    expression                     shift and go to state 68
+    exp                            shift and go to state 25
+    term                           shift and go to state 26
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 58
+
+    (37) declare_var -> VAR var_type ID SEMICOLON .
+
+    MAIN            reduce using rule 37 (declare_var -> VAR var_type ID SEMICOLON .)
+    VAR             reduce using rule 37 (declare_var -> VAR var_type ID SEMICOLON .)
+    ID              reduce using rule 37 (declare_var -> VAR var_type ID SEMICOLON .)
+    PRINT           reduce using rule 37 (declare_var -> VAR var_type ID SEMICOLON .)
+    RBRACKET        reduce using rule 37 (declare_var -> VAR var_type ID SEMICOLON .)
+    IF              reduce using rule 37 (declare_var -> VAR var_type ID SEMICOLON .)
+
+
+state 59
+
+    (48) print -> PRINT LPARENT expression RPARENT . SEMICOLON
+
+    SEMICOLON       shift and go to state 69
+
+
+state 60
+
+    (19) expression -> exp rel_operator exp .
+
+    SEMICOLON       reduce using rule 19 (expression -> exp rel_operator exp .)
+    RPARENT         reduce using rule 19 (expression -> exp rel_operator exp .)
+
+
+state 61
+
+    (21) exp -> term PLUS exp .
+
+    GREATERTHAN     reduce using rule 21 (exp -> term PLUS exp .)
+    LESSTHAN        reduce using rule 21 (exp -> term PLUS exp .)
+    EQUALEQUAL      reduce using rule 21 (exp -> term PLUS exp .)
+    LESSTHANOREQUAL reduce using rule 21 (exp -> term PLUS exp .)
+    GREATERTHANOREQUAL reduce using rule 21 (exp -> term PLUS exp .)
+    NOTEQUAL        reduce using rule 21 (exp -> term PLUS exp .)
+    SEMICOLON       reduce using rule 21 (exp -> term PLUS exp .)
+    RPARENT         reduce using rule 21 (exp -> term PLUS exp .)
+
+
+state 62
+
+    (22) exp -> term MINUS exp .
+
+    GREATERTHAN     reduce using rule 22 (exp -> term MINUS exp .)
+    LESSTHAN        reduce using rule 22 (exp -> term MINUS exp .)
+    EQUALEQUAL      reduce using rule 22 (exp -> term MINUS exp .)
+    LESSTHANOREQUAL reduce using rule 22 (exp -> term MINUS exp .)
+    GREATERTHANOREQUAL reduce using rule 22 (exp -> term MINUS exp .)
+    NOTEQUAL        reduce using rule 22 (exp -> term MINUS exp .)
+    SEMICOLON       reduce using rule 22 (exp -> term MINUS exp .)
+    RPARENT         reduce using rule 22 (exp -> term MINUS exp .)
+
+
+state 63
+
+    (24) term -> factor TIMES term .
+
+    PLUS            reduce using rule 24 (term -> factor TIMES term .)
+    MINUS           reduce using rule 24 (term -> factor TIMES term .)
+    GREATERTHAN     reduce using rule 24 (term -> factor TIMES term .)
+    LESSTHAN        reduce using rule 24 (term -> factor TIMES term .)
+    EQUALEQUAL      reduce using rule 24 (term -> factor TIMES term .)
+    LESSTHANOREQUAL reduce using rule 24 (term -> factor TIMES term .)
+    GREATERTHANOREQUAL reduce using rule 24 (term -> factor TIMES term .)
+    NOTEQUAL        reduce using rule 24 (term -> factor TIMES term .)
+    SEMICOLON       reduce using rule 24 (term -> factor TIMES term .)
+    RPARENT         reduce using rule 24 (term -> factor TIMES term .)
+
+
+state 64
+
+    (25) term -> factor DIVIDE term .
+
+    PLUS            reduce using rule 25 (term -> factor DIVIDE term .)
+    MINUS           reduce using rule 25 (term -> factor DIVIDE term .)
+    GREATERTHAN     reduce using rule 25 (term -> factor DIVIDE term .)
+    LESSTHAN        reduce using rule 25 (term -> factor DIVIDE term .)
+    EQUALEQUAL      reduce using rule 25 (term -> factor DIVIDE term .)
+    LESSTHANOREQUAL reduce using rule 25 (term -> factor DIVIDE term .)
+    GREATERTHANOREQUAL reduce using rule 25 (term -> factor DIVIDE term .)
+    NOTEQUAL        reduce using rule 25 (term -> factor DIVIDE term .)
+    SEMICOLON       reduce using rule 25 (term -> factor DIVIDE term .)
+    RPARENT         reduce using rule 25 (term -> factor DIVIDE term .)
+
+
+state 65
+
+    (26) factor -> LPARENT expression RPARENT .
+
+    TIMES           reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    DIVIDE          reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    PLUS            reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    MINUS           reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    GREATERTHAN     reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    LESSTHAN        reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    EQUALEQUAL      reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    LESSTHANOREQUAL reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    GREATERTHANOREQUAL reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    NOTEQUAL        reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    SEMICOLON       reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+    RPARENT         reduce using rule 26 (factor -> LPARENT expression RPARENT .)
+
+
+state 66
+
+    (38) main_declaration -> MAIN LPARENT RPARENT LBRACKET statement_list . RBRACKET SEMICOLON
+    (39) statement_list -> statement_list . statement
+    (41) statement -> . declare_var
+    (42) statement -> . assign_statement
+    (43) statement -> . if_condition
+    (44) statement -> . print
+    (37) declare_var -> . VAR var_type ID SEMICOLON
+    (16) assign_statement -> . VAR var_type ID EQUAL expression SEMICOLON
+    (17) assign_statement -> . ID EQUAL expression SEMICOLON
+    (45) if_condition -> . IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition
+    (48) print -> . PRINT LPARENT expression RPARENT SEMICOLON
+
+    RBRACKET        shift and go to state 70
+    VAR             shift and go to state 76
+    ID              shift and go to state 7
+    IF              shift and go to state 77
+    PRINT           shift and go to state 15
+
+    statement                      shift and go to state 71
+    declare_var                    shift and go to state 72
+    assign_statement               shift and go to state 73
+    if_condition                   shift and go to state 74
+    print                          shift and go to state 75
+
+state 67
+
+    (40) statement_list -> empty .
+
+    RBRACKET        reduce using rule 40 (statement_list -> empty .)
+    VAR             reduce using rule 40 (statement_list -> empty .)
+    ID              reduce using rule 40 (statement_list -> empty .)
+    IF              reduce using rule 40 (statement_list -> empty .)
+    PRINT           reduce using rule 40 (statement_list -> empty .)
+
+
+state 68
+
+    (16) assign_statement -> VAR var_type ID EQUAL expression . SEMICOLON
+
+    SEMICOLON       shift and go to state 78
+
+
+state 69
+
+    (48) print -> PRINT LPARENT expression RPARENT SEMICOLON .
+
+    MAIN            reduce using rule 48 (print -> PRINT LPARENT expression RPARENT SEMICOLON .)
+    VAR             reduce using rule 48 (print -> PRINT LPARENT expression RPARENT SEMICOLON .)
+    ID              reduce using rule 48 (print -> PRINT LPARENT expression RPARENT SEMICOLON .)
+    PRINT           reduce using rule 48 (print -> PRINT LPARENT expression RPARENT SEMICOLON .)
+    RBRACKET        reduce using rule 48 (print -> PRINT LPARENT expression RPARENT SEMICOLON .)
+    IF              reduce using rule 48 (print -> PRINT LPARENT expression RPARENT SEMICOLON .)
+
+
+state 70
+
+    (38) main_declaration -> MAIN LPARENT RPARENT LBRACKET statement_list RBRACKET . SEMICOLON
+
+    SEMICOLON       shift and go to state 79
+
+
+state 71
+
+    (39) statement_list -> statement_list statement .
+
+    RBRACKET        reduce using rule 39 (statement_list -> statement_list statement .)
+    VAR             reduce using rule 39 (statement_list -> statement_list statement .)
+    ID              reduce using rule 39 (statement_list -> statement_list statement .)
+    IF              reduce using rule 39 (statement_list -> statement_list statement .)
+    PRINT           reduce using rule 39 (statement_list -> statement_list statement .)
+
+
+state 72
+
+    (41) statement -> declare_var .
+
+    RBRACKET        reduce using rule 41 (statement -> declare_var .)
+    VAR             reduce using rule 41 (statement -> declare_var .)
+    ID              reduce using rule 41 (statement -> declare_var .)
+    IF              reduce using rule 41 (statement -> declare_var .)
+    PRINT           reduce using rule 41 (statement -> declare_var .)
+
+
+state 73
+
+    (42) statement -> assign_statement .
+
+    RBRACKET        reduce using rule 42 (statement -> assign_statement .)
+    VAR             reduce using rule 42 (statement -> assign_statement .)
+    ID              reduce using rule 42 (statement -> assign_statement .)
+    IF              reduce using rule 42 (statement -> assign_statement .)
+    PRINT           reduce using rule 42 (statement -> assign_statement .)
+
+
+state 74
+
+    (43) statement -> if_condition .
+
+    RBRACKET        reduce using rule 43 (statement -> if_condition .)
+    VAR             reduce using rule 43 (statement -> if_condition .)
+    ID              reduce using rule 43 (statement -> if_condition .)
+    IF              reduce using rule 43 (statement -> if_condition .)
+    PRINT           reduce using rule 43 (statement -> if_condition .)
+
+
+state 75
+
+    (44) statement -> print .
+
+    RBRACKET        reduce using rule 44 (statement -> print .)
+    VAR             reduce using rule 44 (statement -> print .)
+    ID              reduce using rule 44 (statement -> print .)
+    IF              reduce using rule 44 (statement -> print .)
+    PRINT           reduce using rule 44 (statement -> print .)
+
+
+state 76
+
+    (37) declare_var -> VAR . var_type ID SEMICOLON
+    (16) assign_statement -> VAR . var_type ID EQUAL expression SEMICOLON
+    (7) var_type -> . FLOAT_TYPE
+    (8) var_type -> . STRING_TYPE
+    (9) var_type -> . BOOL_TYPE
+
+    FLOAT_TYPE      shift and go to state 19
+    STRING_TYPE     shift and go to state 20
+    BOOL_TYPE       shift and go to state 21
+
+    var_type                       shift and go to state 80
+
+state 77
+
+    (45) if_condition -> IF . LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition
+
+    LPARENT         shift and go to state 81
+
+
+state 78
+
+    (16) assign_statement -> VAR var_type ID EQUAL expression SEMICOLON .
+
+    MAIN            reduce using rule 16 (assign_statement -> VAR var_type ID EQUAL expression SEMICOLON .)
+    VAR             reduce using rule 16 (assign_statement -> VAR var_type ID EQUAL expression SEMICOLON .)
+    ID              reduce using rule 16 (assign_statement -> VAR var_type ID EQUAL expression SEMICOLON .)
+    PRINT           reduce using rule 16 (assign_statement -> VAR var_type ID EQUAL expression SEMICOLON .)
+    RBRACKET        reduce using rule 16 (assign_statement -> VAR var_type ID EQUAL expression SEMICOLON .)
+    IF              reduce using rule 16 (assign_statement -> VAR var_type ID EQUAL expression SEMICOLON .)
+
+
+state 79
+
+    (38) main_declaration -> MAIN LPARENT RPARENT LBRACKET statement_list RBRACKET SEMICOLON .
+
+    $end            reduce using rule 38 (main_declaration -> MAIN LPARENT RPARENT LBRACKET statement_list RBRACKET SEMICOLON .)
+
+
+state 80
+
+    (37) declare_var -> VAR var_type . ID SEMICOLON
+    (16) assign_statement -> VAR var_type . ID EQUAL expression SEMICOLON
+
+    ID              shift and go to state 82
+
+
+state 81
+
+    (45) if_condition -> IF LPARENT . expression RPARENT LBRACKET statement_list RBRACKET else_condition
+    (18) expression -> . exp
+    (19) expression -> . exp rel_operator exp
+    (20) exp -> . term
+    (21) exp -> . term PLUS exp
+    (22) exp -> . term MINUS exp
+    (23) term -> . factor
+    (24) term -> . factor TIMES term
+    (25) term -> . factor DIVIDE term
+    (26) factor -> . LPARENT expression RPARENT
+    (27) factor -> . PLUS value
+    (28) factor -> . MINUS value
+    (29) factor -> . value
+    (30) value -> . literal
+    (31) value -> . reference
+    (33) literal -> . FLOAT
+    (34) literal -> . STRING
+    (35) literal -> . TRUE
+    (36) literal -> . FALSE
+    (32) reference -> . ID
+
+    LPARENT         shift and go to state 30
+    PLUS            shift and go to state 27
+    MINUS           shift and go to state 28
+    FLOAT           shift and go to state 34
+    STRING          shift and go to state 35
+    TRUE            shift and go to state 36
+    FALSE           shift and go to state 37
+    ID              shift and go to state 23
+
+    expression                     shift and go to state 83
+    exp                            shift and go to state 25
+    term                           shift and go to state 26
+    factor                         shift and go to state 29
+    value                          shift and go to state 31
+    literal                        shift and go to state 32
+    reference                      shift and go to state 33
+
+state 82
+
+    (37) declare_var -> VAR var_type ID . SEMICOLON
+    (16) assign_statement -> VAR var_type ID . EQUAL expression SEMICOLON
+
+    SEMICOLON       shift and go to state 58
+    EQUAL           shift and go to state 57
+
+
+state 83
+
+    (45) if_condition -> IF LPARENT expression . RPARENT LBRACKET statement_list RBRACKET else_condition
+
+    RPARENT         shift and go to state 84
+
+
+state 84
+
+    (45) if_condition -> IF LPARENT expression RPARENT . LBRACKET statement_list RBRACKET else_condition
+
+    LBRACKET        shift and go to state 85
+
+
+state 85
+
+    (45) if_condition -> IF LPARENT expression RPARENT LBRACKET . statement_list RBRACKET else_condition
+    (39) statement_list -> . statement_list statement
+    (40) statement_list -> . empty
+    (49) empty -> .
+
+    RBRACKET        reduce using rule 49 (empty -> .)
+    VAR             reduce using rule 49 (empty -> .)
+    ID              reduce using rule 49 (empty -> .)
+    IF              reduce using rule 49 (empty -> .)
+    PRINT           reduce using rule 49 (empty -> .)
+
+    statement_list                 shift and go to state 86
+    empty                          shift and go to state 67
+
+state 86
+
+    (45) if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list . RBRACKET else_condition
+    (39) statement_list -> statement_list . statement
+    (41) statement -> . declare_var
+    (42) statement -> . assign_statement
+    (43) statement -> . if_condition
+    (44) statement -> . print
+    (37) declare_var -> . VAR var_type ID SEMICOLON
+    (16) assign_statement -> . VAR var_type ID EQUAL expression SEMICOLON
+    (17) assign_statement -> . ID EQUAL expression SEMICOLON
+    (45) if_condition -> . IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition
+    (48) print -> . PRINT LPARENT expression RPARENT SEMICOLON
+
+    RBRACKET        shift and go to state 87
+    VAR             shift and go to state 76
+    ID              shift and go to state 7
+    IF              shift and go to state 77
+    PRINT           shift and go to state 15
+
+    statement                      shift and go to state 71
+    declare_var                    shift and go to state 72
+    assign_statement               shift and go to state 73
+    if_condition                   shift and go to state 74
+    print                          shift and go to state 75
+
+state 87
+
+    (45) if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET . else_condition
+    (46) else_condition -> . ELSE LBRACKET statement_list RBRACKET
+    (47) else_condition -> . empty
+    (49) empty -> .
+
+    ELSE            shift and go to state 89
+    RBRACKET        reduce using rule 49 (empty -> .)
+    VAR             reduce using rule 49 (empty -> .)
+    ID              reduce using rule 49 (empty -> .)
+    IF              reduce using rule 49 (empty -> .)
+    PRINT           reduce using rule 49 (empty -> .)
+
+    else_condition                 shift and go to state 88
+    empty                          shift and go to state 90
+
+state 88
+
+    (45) if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition .
+
+    RBRACKET        reduce using rule 45 (if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition .)
+    VAR             reduce using rule 45 (if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition .)
+    ID              reduce using rule 45 (if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition .)
+    IF              reduce using rule 45 (if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition .)
+    PRINT           reduce using rule 45 (if_condition -> IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition .)
+
+
+state 89
+
+    (46) else_condition -> ELSE . LBRACKET statement_list RBRACKET
+
+    LBRACKET        shift and go to state 91
+
+
+state 90
+
+    (47) else_condition -> empty .
+
+    RBRACKET        reduce using rule 47 (else_condition -> empty .)
+    VAR             reduce using rule 47 (else_condition -> empty .)
+    ID              reduce using rule 47 (else_condition -> empty .)
+    IF              reduce using rule 47 (else_condition -> empty .)
+    PRINT           reduce using rule 47 (else_condition -> empty .)
+
+
+state 91
+
+    (46) else_condition -> ELSE LBRACKET . statement_list RBRACKET
+    (39) statement_list -> . statement_list statement
+    (40) statement_list -> . empty
+    (49) empty -> .
+
+    RBRACKET        reduce using rule 49 (empty -> .)
+    VAR             reduce using rule 49 (empty -> .)
+    ID              reduce using rule 49 (empty -> .)
+    IF              reduce using rule 49 (empty -> .)
+    PRINT           reduce using rule 49 (empty -> .)
+
+    statement_list                 shift and go to state 92
+    empty                          shift and go to state 67
+
+state 92
+
+    (46) else_condition -> ELSE LBRACKET statement_list . RBRACKET
+    (39) statement_list -> statement_list . statement
+    (41) statement -> . declare_var
+    (42) statement -> . assign_statement
+    (43) statement -> . if_condition
+    (44) statement -> . print
+    (37) declare_var -> . VAR var_type ID SEMICOLON
+    (16) assign_statement -> . VAR var_type ID EQUAL expression SEMICOLON
+    (17) assign_statement -> . ID EQUAL expression SEMICOLON
+    (45) if_condition -> . IF LPARENT expression RPARENT LBRACKET statement_list RBRACKET else_condition
+    (48) print -> . PRINT LPARENT expression RPARENT SEMICOLON
+
+    RBRACKET        shift and go to state 93
+    VAR             shift and go to state 76
+    ID              shift and go to state 7
+    IF              shift and go to state 77
+    PRINT           shift and go to state 15
+
+    statement                      shift and go to state 71
+    declare_var                    shift and go to state 72
+    assign_statement               shift and go to state 73
+    if_condition                   shift and go to state 74
+    print                          shift and go to state 75
+
+state 93
+
+    (46) else_condition -> ELSE LBRACKET statement_list RBRACKET .
+
+    RBRACKET        reduce using rule 46 (else_condition -> ELSE LBRACKET statement_list RBRACKET .)
+    VAR             reduce using rule 46 (else_condition -> ELSE LBRACKET statement_list RBRACKET .)
+    ID              reduce using rule 46 (else_condition -> ELSE LBRACKET statement_list RBRACKET .)
+    IF              reduce using rule 46 (else_condition -> ELSE LBRACKET statement_list RBRACKET .)
+    PRINT           reduce using rule 46 (else_condition -> ELSE LBRACKET statement_list RBRACKET .)
+
