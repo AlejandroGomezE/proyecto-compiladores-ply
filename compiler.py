@@ -72,7 +72,7 @@ def t_COMMENT(t):
 
 
 def t_error(t):
-    print("Input erroneo: '%s'" % t.value[0])
+    print("Input error: '%s'" % t.value[0])
     t.lexer.skip(1)
 
 
