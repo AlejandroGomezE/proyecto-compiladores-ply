@@ -3,7 +3,7 @@ program programa;
 var float p = 2.0;
 
 main(){
-  var float i = 0.0;
+  var float i = 0.0 * 2.0 + 1.0 + (2.0 / 2.0) - 20.0;
   if(i == 0.0){
     print(global);
   }else{

@@ -1,0 +1,7 @@
+program programa;
+
+var float p = 2.0;
+
+main(){
+
+};
