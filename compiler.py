@@ -89,6 +89,12 @@ class Quadruple:
         self.left = left
         self.right = right
         self.target = target
+        self.object = {
+            "op_code": self.op_code.value,
+            "left": self.left,
+            "right": self.right,
+            "target": self.target
+        }
 
     def __str__(self):
         spaces = 20
@@ -167,6 +173,48 @@ last_float_address = DIR_SIZE * 2
 
 DIR_BOOL_MAX = DIR_SIZE * 4 - 1
 last_bool_address = DIR_SIZE * 3
+
+
+def init_compiler():
+    # Resets every global helper
+    global current_type
+    global quadruple_address_list
+    global quadruple_name_list
+    global POper
+    global PilaOperandos
+    global PTypes
+    global temps_counter
+    global funcsTable
+    global current_scope_ref
+    global constants_table
+    global PJumps
+    global last_string_address
+    global last_float_address
+    global last_bool_address
+
+    current_type = None
+    # List of quadruples with addresses
+    quadruple_address_list = [Quadruple(Operations.START)]
+    # List of quadruples
+    quadruple_name_list = [Quadruple(Operations.START)]
+
+    # Scope tree for storing variables and functions
+    funcsTable = FuncTable()
+    current_scope_ref = 0
+    constants_table = {}
+    # Pending Operators
+    POper = []
+    # Pending Operands
+    PilaOperandos = []
+    # Coresponding types
+    PTypes = []
+    # Pending Jumps
+    PJumps = []
+    # Counter for used temporary variables
+    temps_counter = 1
+    last_string_address = DIR_SIZE
+    last_float_address = DIR_SIZE * 2
+    last_bool_address = DIR_SIZE * 3
 
 
 def get_last_token(p):
@@ -286,9 +334,32 @@ def math_operation_quadruple(operators):
             funcsTable.dict[current_scope_ref].add_variable(
                 result, result_type, result_addr)
         else:
-            raise Exception('Semantic error: incompatible types %s and %s in operation %s' % (
+            raise Exception('Semantic error: Incompatible types "%s" and "%s" in operation "%s"' % (
                 left_type, right_type, operator))
     pass
+
+
+def assign_var():
+    if len(POper) == 0:
+        pass
+    elif POper[-1] in [Operations.EQUAL]:
+        left_operand = PilaOperandos.pop()
+        left_type = PTypes.pop()
+        right_operand = PilaOperandos.pop()
+        right_type = PTypes.pop()
+        operator = POper.pop()
+        result_type = sem_cube[left_type][right_type][operator]
+        if result_type:
+            # Debug quad list
+            temp_quad = Quadruple(operator, left_operand, target=right_operand)
+            quadruple_name_list.append(temp_quad)
+            # Addr quad list
+            addr_quad = Quadruple(operator, get_addr(
+                left_operand, left_type), target=get_addr(right_operand, right_type))
+            quadruple_address_list.append(addr_quad)
+        else:
+            raise Exception('Semantic error: Incompatible types "%s" and "%s" in assignment.' % (
+                left_type, right_type))
 
 
 def add_to_operand_type_stacks(token, type):
@@ -339,7 +410,7 @@ def p_init_variable(p):
     exists = get_var_address(var_name)
     if exists != -1:
         raise Exception(
-            'Semantic error: variable %s already exists' % var_name)
+            'Semantic error: Variable "%s" already exists.' % var_name)
     # if variable was not found in any scope generate an address for given type
     var_addr = get_addr(var_name, current_type)
     # add variable to current scope variables
@@ -355,7 +426,7 @@ def p_check_variable_exists(p):
     exists = get_var_address(var_name)
     if exists == -1:
         raise Exception(
-            'Semantic error: variable %s does not exist' % var_name)
+            'Semantic error: Variable "%s" does not exist.' % var_name)
     aux_scope_ref = current_scope_ref
     while aux_scope_ref > -1:
         if var_name in funcsTable.dict[aux_scope_ref].vars:
@@ -550,6 +621,7 @@ def p_declare_var(p):
 def p_assign_statement(p):
     '''assign_statement : VAR var_type ID init_variable add_id_type_to_stack EQUAL add_operator_to_stack mega_expression SEMICOLON
     | reference EQUAL add_operator_to_stack mega_expression SEMICOLON'''
+    assign_var()
     pass
 
 
@@ -657,11 +729,65 @@ def p_empty(p):
 
 
 def p_error(p):
-    print('Syntax error in line:', p.lineno)
-    """ raise Exception("Syntax Error") """
+    """ print('Syntax error in line:', p.lineno) """
+    print(str(p.lineno))
+    raise Exception('Syntax error in line: ' + str(p.lineno))
+
+
+def print_funcsTable():
+    print("--Scopes and Variables--")
+    print(funcsTable)
+
+
+def print_constantsTable():
+    print("--Constants--")
+    print(constants_table)
+
+
+def print_quads():
+    print("--Quads--")
+    for index, quadRef in enumerate(quadruple_name_list):
+        print(index, " ", quadRef)
+
+
+def get_object_array():
+    global quadruple_address_list
+    # Create list of json objects only, remove classes
+    object_array = []
+    for quad in quadruple_address_list:
+        object_array.append(quad.object)
+    return object_array
+
+
+def contants_table_to_json():
+    # Change type value from enum to string
+    for key, value in constants_table.items():
+        constants_table[key]['type'] = value['type'].value
+    return constants_table
+
+
+def create_scope_table():
+    # Create scope table
+    scope_table = {}
+    for key, value in funcsTable.dict.items():
+        for key_var, value_var in value.vars.items():
+            value_var['type'] = value_var['type'].value
+        scope_table[str(value.ref)] = {
+            'ref': value.ref,
+            'parent_ref': value.parent_ref,
+            'params': value.params,
+            'vars': value.vars,
+            'functions': value.functions,
+            'func_name': value.func_name,
+            'quad_start': value.quad_start,
+            'return_type': value.return_type,
+            'return_value': value.return_value,
+        }
+    return scope_table
 
 
 def executeCompiler(filename):
+    init_compiler()
     # Read the input file
     lines = []
     with open('./tests/' + filename) as f:
@@ -674,6 +800,16 @@ def executeCompiler(filename):
 
     # Print the result
     print(result)
+
+
+def executeCompilerCode(code):
+    init_compiler()
+    lex(optimize=1)
+    # Build the parser
+    parser = yacc(optimize=1, debug=False, write_tables=False)
+    # Make a single string of the lines
+    parser.parse(code, debug=False)
+    return get_object_array(), contants_table_to_json(), create_scope_table()
 
 
 if __name__ == "__main__":

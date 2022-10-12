@@ -1,0 +1,6 @@
+program programa;
+
+main(){
+  print("no");
+  print("yes");
+};
