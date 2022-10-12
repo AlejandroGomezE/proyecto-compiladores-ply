@@ -24,6 +24,7 @@ reserved = {
     'else': 'ELSE',
     'while': 'WHILE',
     'main': 'MAIN',
+    'absolute': 'ABSOLUTE',
 }
 
 extras = ['ID', 'FLOAT', 'STRING']
@@ -123,6 +124,7 @@ operations_map = {
     'end': Operations.END,
     'param': Operations.PARAM,
     'return': Operations.RETURN,
+    'absolute': Operations.ABSOLUTE,
 }
 
 types_map = {
@@ -584,6 +586,22 @@ def p_main_quad(p):
     pass
 
 
+def p_check_absolute_argument(p):
+    'check_absolute_argument : '
+    value_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+    if value_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: absolute() function only accepts floats.')
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.ABSOLUTE, target=value_name))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.ABSOLUTE, target=get_addr(value_name, value_type)))
+    pass
+
+
 def p_print_value(p):
     # Create print quadruple
     'print_value : '
@@ -638,6 +656,7 @@ def p_statement(p):
     | assign_statement
     | if_condition
     | while_loop
+    | absolute_call
     | print'''
     pass
 
@@ -752,6 +771,13 @@ def p_while_loop(p):
     pass
 
 
+def p_absolute_call(p):
+    '''
+    absolute_call : ABSOLUTE LPARENT mega_expression check_absolute_argument RPARENT SEMICOLON
+    '''
+    pass
+
+
 def p_print(p):
     '''
     print : PRINT LPARENT mega_expression print_value RPARENT SEMICOLON
@@ -765,8 +791,6 @@ def p_empty(p):
 
 
 def p_error(p):
-    """ print('Syntax error in line:', p.lineno) """
-    print(str(p.lineno))
     raise Exception('Syntax error in line: ' + str(p.lineno))
 
 

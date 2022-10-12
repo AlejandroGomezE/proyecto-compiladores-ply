@@ -1,7 +1,6 @@
 program programa;
 
-var float p = 2.0;
-
 main(){
-
+  var float j = 20.0;
+  absolute(10.0 - j);
 };

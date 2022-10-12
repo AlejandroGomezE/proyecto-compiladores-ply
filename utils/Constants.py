@@ -32,6 +32,7 @@ class Operations(Enum):
     RETURN = 'return'
     PRINT = 'print'
     MAIN = 'main'
+    ABSOLUTE = 'absolute'
 
 
 sem_cube = defaultdict(

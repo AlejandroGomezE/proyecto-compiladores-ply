@@ -28,6 +28,7 @@ export function vm(compiled_data) {
     let right_operand;
     let assign_value;
     let condition;
+    let value;
 
     switch (quad.op_code) {
       case 'start':
@@ -132,11 +133,14 @@ export function vm(compiled_data) {
       case 'goto':
         i = quad.target;
         break;
+      case 'absolute':
+        value = get_value_from_address(quad.target);
+        add_p_element_to_output_area(Math.abs(value));
+        i++;
+        break;
       case 'print':
-        const value = get_value_from_address(quad.target);
-        const paragraphElement = document.createElement('p');
-        paragraphElement.innerText = '>> ' + value;
-        output_area[0].appendChild(paragraphElement);
+        value = get_value_from_address(quad.target);
+        add_p_element_to_output_area(value);
         i++;
         break;
       case 'end':
@@ -198,4 +202,11 @@ function get_value_from_address(address) {
     // Return value for given address
     return execution_state.scopes[aux_ref].scope_layers.at(-1)[address];
   }
+}
+
+// Add p element to output area
+function add_p_element_to_output_area(text) {
+  const paragraphElement = document.createElement('p');
+  paragraphElement.innerText = '>> ' + text;
+  output_area[0].appendChild(paragraphElement);
 }
