@@ -8,6 +8,7 @@ class Types(Enum):
     STRING_TYPE = 'string'
     VOID = 'void'
 
+
 class Operations(Enum):
     PLUS = '+'
     MINUS = '-'
@@ -30,7 +31,8 @@ class Operations(Enum):
     PARAM = 'param'
     RETURN = 'return'
     PRINT = 'print'
-    CIRCLE = 'circle'
+    MAIN = 'main'
+
 
 sem_cube = defaultdict(
     lambda: defaultdict(lambda: defaultdict(lambda: None)))

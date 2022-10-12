@@ -89,12 +89,6 @@ class Quadruple:
         self.left = left
         self.right = right
         self.target = target
-        self.object = {
-            "op_code": self.op_code.value,
-            "left": self.left,
-            "right": self.right,
-            "target": self.target
-        }
 
     def __str__(self):
         spaces = 20
@@ -556,6 +550,13 @@ def p_goto_end_position(p):
     pass
 
 
+def p_main_quad(p):
+    'main_quad : '
+    quadruple_name_list.append(Quadruple(Operations.MAIN))
+    quadruple_address_list.append(Quadruple(Operations.MAIN))
+    pass
+
+
 def p_print_value(p):
     # Create print quadruple
     'print_value : '
@@ -595,7 +596,7 @@ def p_global_statement(p):
 
 
 def p_main_declaration(p):
-    '''main_declaration : MAIN LPARENT RPARENT LBRACKET new_scope statement_list RBRACKET close_current_scope SEMICOLON'''
+    '''main_declaration : MAIN main_quad LPARENT RPARENT LBRACKET new_scope statement_list RBRACKET close_current_scope SEMICOLON'''
     pass
 
 
@@ -755,7 +756,12 @@ def get_object_array():
     # Create list of json objects only, remove classes
     object_array = []
     for quad in quadruple_address_list:
-        object_array.append(quad.object)
+        object_array.append({
+            'op_code': quad.op_code.value,
+            'left': quad.left,
+            'right': quad.right,
+            'target': quad.target
+        })
     return object_array
 
 

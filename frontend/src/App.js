@@ -48,8 +48,8 @@ function App() {
         </form>
         <div className="Code-output">
           <p className="Text-title">Output</p>
-          <div className="Output-area" id='output-area'>
-            {error && <p>{error}</p>}
+          <div className="Output-area" id="output-area">
+            {error && <p>{'>> ' + error}</p>}
           </div>
         </div>
       </div>

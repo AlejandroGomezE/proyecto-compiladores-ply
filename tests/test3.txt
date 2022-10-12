@@ -1,6 +1,10 @@
 program programa;
 
 main(){
-  print("no");
-  print("yes");
+  var bool i = True;
+  if(i){
+    print("e");
+  }else{
+    print("Hola");
+  }
 };
