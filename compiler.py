@@ -169,6 +169,45 @@ DIR_BOOL_MAX = DIR_SIZE * 4 - 1
 last_bool_address = DIR_SIZE * 3
 
 
+def init_compiler():
+    # Resets every global helper
+    global current_type
+    global quadruple_address_list
+    global quadruple_name_list
+    global POper
+    global PilaOperandos
+    global PTypes
+    global temps_counter
+    global funcsTable
+    global current_scope_ref
+    global constants_table
+    global PJumps
+    global last_string_address
+    global last_float_address
+    global last_bool_address
+
+    current_type = None
+    # Scope tree for storing variables and functions
+    funcsTable = FuncTable()
+    current_scope_ref = 0
+    constants_table = {}
+    # Pending Operators
+    POper = []
+    # Pending Operands
+    PilaOperandos = []
+    # Coresponding types
+    PTypes = []
+    # Pending Jumps
+    PJumps = []
+    # Counter for used temporary variables
+    temps_counter = 1
+
+    # List of quadruples with addresses
+    quadruple_address_list = [Quadruple(Operations.START)]
+    # List of quadruples
+    quadruple_name_list = [Quadruple(Operations.START)]
+
+
 def get_last_token(p):
     # Get last token
     token = None
@@ -286,7 +325,7 @@ def math_operation_quadruple(operators):
             funcsTable.dict[current_scope_ref].add_variable(
                 result, result_type, result_addr)
         else:
-            raise Exception('Semantic error: incompatible types %s and %s in operation %s' % (
+            raise Exception('Semantic error: Incompatible types "%s" and "%s" in operation "%s"' % (
                 left_type, right_type, operator))
     pass
 
@@ -339,7 +378,7 @@ def p_init_variable(p):
     exists = get_var_address(var_name)
     if exists != -1:
         raise Exception(
-            'Semantic error: variable %s already exists' % var_name)
+            'Semantic error: Variable "%s" already exists.' % var_name)
     # if variable was not found in any scope generate an address for given type
     var_addr = get_addr(var_name, current_type)
     # add variable to current scope variables
@@ -355,7 +394,7 @@ def p_check_variable_exists(p):
     exists = get_var_address(var_name)
     if exists == -1:
         raise Exception(
-            'Semantic error: variable %s does not exist' % var_name)
+            'Semantic error: Variable "%s" does not exist.' % var_name)
     aux_scope_ref = current_scope_ref
     while aux_scope_ref > -1:
         if var_name in funcsTable.dict[aux_scope_ref].vars:
@@ -657,11 +696,26 @@ def p_empty(p):
 
 
 def p_error(p):
-    print('Syntax error in line:', p.lineno)
-    """ raise Exception("Syntax Error") """
+    """ print('Syntax error in line:', p.lineno) """
+    print(str(p.lineno))
+    raise Exception('Syntax error in line: ' + str(p.lineno))
+
+def print_funcsTable():
+    print("--Scopes and Variables--")
+    print(funcsTable)
+
+def print_constantsTable():
+    print("--Constants--")
+    print(constants_table)
+
+def print_quads():
+    print("--Quads--")
+    for index, quadRef in enumerate(quadruple_name_list):
+        print(index, " ", quadRef)
 
 
 def executeCompiler(filename):
+    init_compiler()
     # Read the input file
     lines = []
     with open('./tests/' + filename) as f:
@@ -674,6 +728,19 @@ def executeCompiler(filename):
 
     # Print the result
     print(result)
+
+
+def executeCompilerCode(code):
+    init_compiler()
+    lex(optimize=1)
+    # Build the parser
+    parser = yacc(optimize=1, debug=False, write_tables=False)
+    # Make a single string of the lines
+    parser.parse(code, debug=False)
+    print_funcsTable()
+    print_constantsTable()
+    print_quads()
+    return quadruple_name_list
 
 
 if __name__ == "__main__":
