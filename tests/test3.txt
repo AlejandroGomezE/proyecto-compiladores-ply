@@ -2,7 +2,7 @@ program programa;
 
 main(){
   var bool i = True;
-  if(i){
+  if(i != True){
     print("e");
   }else{
     print("Hola");

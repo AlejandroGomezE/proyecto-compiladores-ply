@@ -51,11 +51,7 @@ sem_cube[Types.FLOAT_TYPE][Types.FLOAT_TYPE][Operations.EQUAL] = Types.FLOAT_TYP
 
 sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.EQUAL] = Types.BOOL_TYPE
 sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.EQUALEQUAL] = Types.BOOL_TYPE
-sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.LESSTHAN] = Types.BOOL_TYPE
 sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.NOTEQUAL] = Types.BOOL_TYPE
-sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.GREATERTHAN] = Types.BOOL_TYPE
-sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.LESSTHANOREQUAL] = Types.BOOL_TYPE
-sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.GREATERTHANOREQUAL] = Types.BOOL_TYPE
 
 sem_cube[Types.STRING_TYPE][Types.STRING_TYPE][Operations.PLUS] = Types.STRING_TYPE
 sem_cube[Types.STRING_TYPE][Types.STRING_TYPE][Operations.EQUAL] = Types.STRING_TYPE

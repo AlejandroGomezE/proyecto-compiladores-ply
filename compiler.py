@@ -22,6 +22,7 @@ reserved = {
     'print': 'PRINT',
     'if': 'IF',
     'else': 'ELSE',
+    'while': 'WHILE',
     'main': 'MAIN',
 }
 
@@ -329,7 +330,7 @@ def math_operation_quadruple(operators):
                 result, result_type, result_addr)
         else:
             raise Exception('Semantic error: Incompatible types "%s" and "%s" in operation "%s"' % (
-                left_type, right_type, operator))
+                left_type.value, right_type.value, operator.value))
     pass
 
 
@@ -353,7 +354,7 @@ def assign_var():
             quadruple_address_list.append(addr_quad)
         else:
             raise Exception('Semantic error: Incompatible types "%s" and "%s" in assignment.' % (
-                left_type, right_type))
+                left_type.value, right_type.value))
 
 
 def add_to_operand_type_stacks(token, type):
@@ -507,7 +508,7 @@ def p_create_gotof_quad(p):
     condition_type = PTypes.pop()
 
     if(condition_type != Types.BOOL_TYPE):
-        raise Exception('Semantic error: condition must be boolean')
+        raise Exception('Semantic error: Condition must be boolean.')
 
     # Temporal variable or constant that contains result of condition
     condition = PilaOperandos.pop()
@@ -544,6 +545,32 @@ def p_goto_end_position(p):
     'goto_end_position : '
     end = PJumps.pop()
     # Debuag quad list
+    quadruple_name_list[end].target = len(quadruple_address_list)
+    # Addr quad list
+    quadruple_address_list[end].target = len(quadruple_address_list)
+    pass
+
+
+def p_goto_return_position(p):
+    'goto_return_position : '
+    cont = len(quadruple_address_list)
+    PJumps.append(cont)
+    pass
+
+
+def p_return_end_jump_position(p):
+    'return_end_jump_position : '
+    end = PJumps.pop()
+    return_jump = PJumps.pop()
+
+    # Debug quad list
+    quadruple_name_list.append(Quadruple(Operations.GOTO, target=return_jump))
+
+    # Addr quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.GOTO, target=return_jump))
+
+    # Debug quad list
     quadruple_name_list[end].target = len(quadruple_address_list)
     # Addr quad list
     quadruple_address_list[end].target = len(quadruple_address_list)
@@ -610,6 +637,7 @@ def p_statement(p):
     '''statement : declare_var
     | assign_statement
     | if_condition
+    | while_loop
     | print'''
     pass
 
@@ -713,6 +741,13 @@ def p_else_condition(p):
     '''
     else_condition : ELSE goto_skip_else LBRACKET new_scope statement_list RBRACKET close_current_scope
     | empty
+    '''
+    pass
+
+
+def p_while_loop(p):
+    '''
+    while_loop : WHILE goto_return_position LPARENT mega_expression RPARENT LBRACKET create_gotof_quad new_scope statement_list RBRACKET return_end_jump_position close_current_scope
     '''
     pass
 
