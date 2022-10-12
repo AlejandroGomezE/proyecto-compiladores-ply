@@ -1,5 +1,6 @@
 import './App.css';
 import React, { useState } from 'react';
+import { vm } from './vm.js';
 
 function App() {
   const [code, setCode] = useState('');
@@ -26,6 +27,7 @@ function App() {
       if (res.status === 200) {
         setError('');
         console.log('SUCCESS', data);
+        vm(data);
       } else {
         setError(data.message);
       }
@@ -33,6 +35,7 @@ function App() {
       console.log('ERROR', e);
     }
   };
+
   return (
     <div className="App">
       <div className="App-container">
@@ -45,8 +48,8 @@ function App() {
         </form>
         <div className="Code-output">
           <p className="Text-title">Output</p>
-          <div className="Output-area">
-            {error && <p className="Error-message">{error}</p>}
+          <div className="Output-area" id='output-area'>
+            {error && <p>{error}</p>}
           </div>
         </div>
       </div>

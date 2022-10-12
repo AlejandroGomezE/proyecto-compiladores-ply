@@ -11,7 +11,7 @@ class CompilerApiHandler(Resource):
 
         code = args['code']
         try:
-            result = executeCompilerCode(code)
-            return {"status": "Success", "code_sent": code}, 200
+            result, constants_table, scopes_table = executeCompilerCode(code)
+            return {"code_quads": result, "constants_table": constants_table, "scopes_table": scopes_table}, 200
         except Exception as e:
             return {'message': str(e)}, 400
