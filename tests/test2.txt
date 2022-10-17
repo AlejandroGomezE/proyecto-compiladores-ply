@@ -2,4 +2,6 @@ program programa;
 
 main(){
   var float j = 20.0;
+  print(j);
+  print(j);
 };
