@@ -348,12 +348,11 @@ def assign_var():
         result_type = sem_cube[left_type][right_type][operator]
         if result_type:
             # Debug quad list
-            temp_quad = Quadruple(operator, left_operand, target=right_operand)
-            quadruple_name_list.append(temp_quad)
+            quadruple_name_list.append(
+                Quadruple(operator, left_operand, target=right_operand))
             # Addr quad list
-            addr_quad = Quadruple(operator, get_addr(
-                left_operand, left_type), target=get_addr(right_operand, right_type))
-            quadruple_address_list.append(addr_quad)
+            quadruple_address_list.append(Quadruple(operator, get_addr(
+                left_operand, left_type), target=get_addr(right_operand, right_type)))
         else:
             raise Exception('Semantic error: Incompatible types "%s" and "%s" in assignment.' % (
                 left_type.value, right_type.value))

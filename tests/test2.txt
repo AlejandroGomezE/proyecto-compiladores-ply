@@ -2,5 +2,4 @@ program programa;
 
 main(){
   var float j = 20.0;
-  absolute(10.0 - j);
 };
