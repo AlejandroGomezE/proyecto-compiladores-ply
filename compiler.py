@@ -25,6 +25,7 @@ reserved = {
     'while': 'WHILE',
     'main': 'MAIN',
     'absolute': 'ABSOLUTE',
+    'function': 'FUNCTION',
 }
 
 extras = ['ID', 'FLOAT', 'STRING']
@@ -140,7 +141,8 @@ start = 'program'
 # Global helpers
 current_type = None
 # Init quad list with addresses
-quadruple_address_list = [Quadruple(Operations.START)]
+quadruple_address_list = [
+    Quadruple(Operations.START)]
 # Init quad list with names
 quadruple_name_list = [Quadruple(Operations.START)]
 # Pending Operators
@@ -191,9 +193,11 @@ def init_compiler():
 
     current_type = None
     # List of quadruples with addresses
-    quadruple_address_list = [Quadruple(Operations.START)]
+    quadruple_address_list = [
+        Quadruple(Operations.START)]
     # List of quadruples
-    quadruple_name_list = [Quadruple(Operations.START)]
+    quadruple_name_list = [
+        Quadruple(Operations.START)]
 
     # Scope tree for storing variables and functions
     funcsTable = FuncTable()
@@ -554,8 +558,7 @@ def p_goto_end_position(p):
 
 def p_goto_return_position(p):
     'goto_return_position : '
-    cont = len(quadruple_address_list)
-    PJumps.append(cont)
+    PJumps.append(len(quadruple_address_list))
     pass
 
 
@@ -578,8 +581,19 @@ def p_return_end_jump_position(p):
     pass
 
 
+def p_goto_main(p):
+    'goto_main : '
+    quadruple_name_list.append(Quadruple(Operations.GOTO))
+    quadruple_address_list.append(Quadruple(Operations.GOTO))
+    PJumps.append(len(quadruple_address_list) - 1)
+    pass
+
+
 def p_main_quad(p):
     'main_quad : '
+    goto_main = PJumps.pop()
+    quadruple_address_list[goto_main].target = len(quadruple_address_list)
+    quadruple_name_list[goto_main].target = len(quadruple_address_list)
     quadruple_name_list.append(Quadruple(Operations.MAIN))
     quadruple_address_list.append(Quadruple(Operations.MAIN))
     pass
@@ -622,19 +636,30 @@ def p_end_program(p):
 
 
 def p_program(p):
-    '''program : PROGRAM ID SEMICOLON global_declaration main_declaration end_program'''
+    '''program : PROGRAM ID SEMICOLON global_vars goto_main global_declaration main_declaration end_program'''
+    pass
+
+
+def p_global_vars(p):
+    '''global_vars : global_vars global_vars_actions
+    | empty'''
+    pass
+
+
+def p_global_vars_actions(p):
+    '''global_vars_actions : declare_var
+    | assign_statement'''
     pass
 
 
 def p_global_declaration(p):
-    '''global_declaration : empty
-    | global_declaration global_statement'''
+    '''global_declaration : global_declaration global_statement
+    | empty'''
     pass
 
 
 def p_global_statement(p):
-    '''global_statement : assign_statement
-    | declare_var
+    '''global_statement : declare_function
     | print'''
     pass
 
@@ -657,6 +682,11 @@ def p_statement(p):
     | while_loop
     | absolute_call
     | print'''
+    pass
+
+
+def p_declare_function(p):
+    '''declare_function : FUNCTION ID LPARENT RPARENT LBRACKET new_scope statement_list RBRACKET close_current_scope SEMICOLON'''
     pass
 
 

@@ -25,11 +25,14 @@
   //Current Scope Ref in State Management
   let current_scope_ref = -1;
 
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+  //Scopes counter
+  let scopes_counter = 0;
 
   function vm(compiled_data) {
+    console.log(compiled_data);
+
+    scopes_counter = 0;
+    
     action_id = 0;
 
     execution_actions = [];
@@ -41,7 +44,6 @@
     execution_state = {
       path_stack: [],
       scopes: {},
-      scopes_counter: 0,
     };
 
     let i = 0;
@@ -56,7 +58,7 @@
       switch (quad.op_code) {
         case 'start':
           //Add global scope to execution stack
-          scope_ref_stack.push(execution_state.scopes_counter);
+          scope_ref_stack.push(scopes_counter);
           //Add global scope
           add_scope_to_execution_state(current_scope_ref);
           //Add contants to global scope
@@ -75,7 +77,7 @@
           break;
         case 'main':
           //Add main scope to execution stack
-          scope_ref_stack.push(execution_state.scopes_counter);
+          scope_ref_stack.push(scopes_counter);
           //Add main scope
           add_scope_to_execution_state(current_scope_ref);
           i++;
@@ -178,14 +180,14 @@
 
   // Add scope to execution state
   function add_scope_to_execution_state(parent_ref) {
-    let current_scope_counter = execution_state.scopes_counter;
+    let current_scope_counter = scopes_counter;
     execution_state.scopes[current_scope_counter] = {
       parent_ref,
       scope_layers: [{}],
     };
     current_scope_ref = current_scope_counter;
     execution_state.path_stack.push(current_scope_counter);
-    execution_state.scopes_counter++;
+    scopes_counter++;
   }
 
   // For each scope from current to parent -> parent etc. check their last scope_layer for var address
