@@ -1,7 +1,12 @@
 program programa;
 
+var float p = 2.0;
+p = p + 8.0;
+
+function hola<void>(float a, float b) {
+    print(a);
+};
+
 main(){
-  var float j = 20.0;
-  print(j);
-  print(j);
+  hola(10.0 + 2.0, 20.0);
 };

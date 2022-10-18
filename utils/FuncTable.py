@@ -6,7 +6,7 @@ class Table:
         self.params = []
         self.vars = {}
         self.functions = {}
-        self.func_name = None
+        self.function_name = None
         self.quad_start = None
         self.return_type = None
         self.return_value = None
@@ -22,7 +22,7 @@ class Table:
 
     def __str__(self):
         message = "Scope Ref: %s, Parent Ref: %s, Function Name: %s, Return Type: %s, Params: %s \nfuncs:\n" % (
-            self.ref, self.parent_ref, self.func_name, self.return_type, self.params)
+            self.ref, self.parent_ref, self.function_name, self.return_type, self.params)
 
         for func in self.functions:
             message += "\t%s\n" % func

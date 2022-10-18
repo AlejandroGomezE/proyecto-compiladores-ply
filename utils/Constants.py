@@ -6,7 +6,7 @@ class Types(Enum):
     FLOAT_TYPE = 'float'
     BOOL_TYPE = 'bool'
     STRING_TYPE = 'string'
-    VOID = 'void'
+    VOID_TYPE = 'void'
 
 
 class Operations(Enum):

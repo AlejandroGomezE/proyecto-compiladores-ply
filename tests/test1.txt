@@ -1,13 +1,13 @@
 program programa;
 
 var float p = 2.0;
+p = p + 8.0;
+
+function hola<float>(float a, float b) {
+    print("hola");
+};
 
 main(){
-  var float i = 0.0 * 2.0 + 1.0 + (2.0 / 2.0) - 20.0;
-  if(i == 0.0){
-    print(global);
-  }else{
-    print("no");
-  }
-  i = i + 1.0;
+  p = p + hola(10.0 + 2.0, 20.0);
+  print(p);
 };
