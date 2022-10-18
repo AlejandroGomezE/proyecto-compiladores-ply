@@ -28,16 +28,26 @@
   //Scopes counter
   let scopes_counter = 0;
 
+  //Return quad
+  let return_quad_pointer = [];
+
+  //Function call stack
+  let function_call_stack = [];
+
   function vm(compiled_data) {
     console.log(compiled_data);
 
     scopes_counter = 0;
-    
+
     action_id = 0;
 
     execution_actions = [];
 
     scope_ref_stack = [];
+
+    return_quad_pointer = [];
+
+    function_call_stack = [];
 
     current_scope_ref = -1;
 
@@ -158,6 +168,33 @@
         case 'goto':
           i = quad.target;
           break;
+        case 'era':
+          function_call_stack.push(quad.target);
+          if (function_call_stack.at(-1) == function_call_stack.at(-2)) {
+            add_scope_execution_layer();
+          } else {
+            scope_ref_stack.push(scopes_counter);
+            add_scope_to_execution_state(current_scope_ref);
+          }
+          i++;
+          break;
+        case 'param':
+          value = get_value_from_address(quad.left);
+          set_value_to_address(quad.target, value);
+          i++;
+          break;
+        case 'gosub':
+          return_quad_pointer.push(i + 1);
+          i = quad.target;
+          break;
+        case 'endFunc':
+          if (scope_ref_stack.at(-1) == scope_ref_stack.at(-2)) {
+            pop_scope_execution_layer();
+          } else {
+            delete_scope_from_execution_state();
+          }
+          i = return_quad_pointer.pop();
+          break;
         case 'absolute':
           value = get_value_from_address(quad.target);
           add_p_element_to_output_area(Math.abs(value));
@@ -173,6 +210,7 @@
           i++;
           break;
         default:
+          i++;
           break;
       }
     }
@@ -188,6 +226,28 @@
     current_scope_ref = current_scope_counter;
     execution_state.path_stack.push(current_scope_counter);
     scopes_counter++;
+  }
+
+  // Pop scope execution layer
+  function pop_scope_execution_layer() {
+    let current_scope = execution_state.scopes[current_scope_ref];
+    current_scope.scope_layers.pop();
+    execution_state.path_stack.pop();
+    current_scope_ref = execution_state.path_stack[execution_state.path_stack.length - 1];
+  }
+
+  //Add scope execution layer
+  function add_scope_execution_layer() {
+    execution_state.scopes[current_scope_ref].scope_layers.push({});
+    execution_state.path_stack.push(current_scope_ref);
+  }
+
+  // Delete scope from execution state
+  function delete_scope_from_execution_state() {
+    let parent_ref = execution_state.scopes[current_scope_ref].parent_ref;
+    delete execution_state.scopes[current_scope_ref];
+    current_scope_ref = parent_ref;
+    execution_state.path_stack.pop();
   }
 
   // For each scope from current to parent -> parent etc. check their last scope_layer for var address
@@ -229,6 +289,17 @@
     }
   }
 
+  // Get address of functions params
+  function get_address_of_function_param(function_name, param_name) {
+    let aux_ref = current_scope_ref;
+    while (aux_ref !== -1) {
+      let scope = compiled_data.scopes_table[aux_ref];
+
+      // Go to parent scope while > -1
+      aux_ref = scope.parent_ref;
+    }
+    return -1;
+  }
   // Add p element to output area
   function add_p_element_to_output_area(text) {
     execution_actions.push({
