@@ -1,5 +1,5 @@
 const config = {
-  content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/stwui/**/*.{svelte,js,ts,html}'],
+  content: ['./src/**/*.{html,js,svelte,ts}'],
   plugins: [require('@tailwindcss/forms')],
   darkMode: 'class',
 };

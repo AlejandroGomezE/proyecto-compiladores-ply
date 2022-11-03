@@ -27,6 +27,7 @@ reserved = {
     'main': 'MAIN',
     'absolute': 'ABSOLUTE',
     'function': 'FUNCTION',
+    'return': 'RETURN',
 }
 
 extras = ['ID', 'FLOAT', 'STRING']
@@ -164,6 +165,8 @@ constants_table = {}
 PJumps = []
 # Function declared stack
 last_func_call = []
+# Return counter
+return_counter = 0
 # Argument counter for function calls
 argument_counter = 0
 
@@ -197,6 +200,7 @@ def init_compiler():
     global last_string_address
     global last_float_address
     global last_bool_address
+    global return_counter
 
     current_type = None
     # List of quadruples with addresses
@@ -220,6 +224,8 @@ def init_compiler():
     PJumps = []
     # Function declared stack
     last_func_call = []
+    # Return counter
+    return_counter = 0
     # Argument counter for function calls
     argument_counter = 0
     # Counter for used temporary variables
@@ -442,9 +448,10 @@ def p_init_param(p):
     'init_param : '
     param_name = get_last_token(p)
     exists = get_var_address(param_name)
-    if exists != -1 & exists != 0:
+    if exists != -1:
         raise Exception(
             'Semantic error: Name for parameter "%s" is already used.' % param_name)
+
     param_addr = get_addr(param_name, current_type)
     # Add param name to variable list of function scope
     funcsTable.dict[current_scope_ref].add_variable(
@@ -464,6 +471,13 @@ def p_function_start_quad(p):
 
 def p_endfunc_quad(p):
     'endfunc_quad : '
+    global return_counter
+    if funcsTable.dict[current_scope_ref].function_name != None:
+        if(funcsTable.dict[current_scope_ref].return_type != types_map['void'] and return_counter == 0):
+            raise Exception(
+                "Semantic error: Function %s must have a return statement." % funcsTable.dict[current_scope_ref].function_name)
+
+    return_counter = 0
     # Debug quad list
     quadruple_name_list.append(Quadruple(Operations.ENDFUNC))
     # Addr quad list
@@ -482,7 +496,7 @@ def p_init_func_call(p):
     function_ref = get_func_ref(current_scope_ref, function_name)
     if function_ref == -1:
         raise Exception(
-            'Semantic error: Function "%s" is not declared.', function_name)
+            'Semantic error: Function "%s" is not declared.' % function_name)
 
     # Get func_name start_quad ref value
     start_quad = funcsTable.dict[function_ref].quad_start
@@ -547,10 +561,12 @@ def p_create_gosub_quad(p):
     function_name = last_func_call[-1]
     func_ref = get_func_ref(current_scope_ref, function_name)
     params_list = funcsTable.dict[func_ref].params
+
     global argument_counter
     if (argument_counter < len(params_list) - 1):
         raise Exception(
             'Semantic error: Too few arguments in "%s" call.' % function_name)
+
     # Reset argument counter
     argument_counter = 0
 
@@ -561,45 +577,78 @@ def p_create_gosub_quad(p):
     func_quad_start = funcsTable.dict[function_ref].quad_start
 
     # Debug quad list
-    quadruple_name_list.append(Quadruple(Operations.GOSUB, function_name,
-                                         len(quadruple_address_list) + 1, func_quad_start))
+    quadruple_name_list.append(
+        Quadruple(Operations.GOSUB, function_name, target=func_quad_start))
     # Addr quad list
     quadruple_address_list.append(
-        Quadruple(Operations.GOSUB, function_name, len(quadruple_address_list) + 1, func_quad_start))
+        Quadruple(Operations.GOSUB, function_name, target=func_quad_start))
+
+    if(len(POper) != 0 and funcsTable.dict[func_ref].return_type == types_map['void']):
+        raise Exception(
+            "Semantic error: Can't use void function as value.")
 
     if funcsTable.dict[func_ref].return_type != types_map['void']:
         # Handle return_value
-        temp_var = create_temp_var()
-        temp_var_type = funcsTable.dict[function_ref].return_type
-        temp_var_addr = get_addr(temp_var, temp_var_type)
-        # Add temp_var to operands stack for return_value neuralgic point
-        PilaOperandos.append(temp_var)
-        PTypes.append(temp_var_type)
+        return_type = funcsTable.dict[function_ref].return_type
 
         return_var_name = f"${function_name}_return_value"
 
-        funcsTable.dict[current_scope_ref].add_variable(
-            return_var_name, temp_var_type, return_var_name)
+        PilaOperandos.append(return_var_name)
+        PTypes.append(return_type)
 
         funcsTable.dict[current_scope_ref].add_variable(
-            temp_var, temp_var_type, temp_var_addr)
+            return_var_name, return_type, return_var_name)
 
-        # Return value address in scope that called function
-        quadruple_name_list[-1].left = return_var_name
-        quadruple_address_list[-1].left = temp_var_addr
-
-        # Debug quad list
-        quadruple_name_list.append(
-            Quadruple(Operations.EQUAL, left=return_var_name, target=temp_var))
-
-        # Addr quad list
-        quadruple_address_list.append(
-            Quadruple(Operations.EQUAL, left=return_var_name, target=temp_var_addr))
-    
-    if(len(POper) != 0 and POper[-1].value == '=' and funcsTable.dict[func_ref].return_type == types_map['void']):
-        raise Exception(
-            "Semantic error: Can't assign void function to variable.")
     last_func_call.pop()
+    pass
+
+
+def p_validate_return(p):
+    'validate_return :'
+    aux_func_ref = current_scope_ref
+    while aux_func_ref > -1:
+        if funcsTable.dict[aux_func_ref].function_name:
+            function_ref = aux_func_ref
+            break
+        else:
+            aux_func_ref = funcsTable.dict[aux_func_ref].parent_ref
+
+    if aux_func_ref == -1:
+        # No function found for return statement
+        raise Exception('Semantic error: Return is not inside a function.')
+
+    function_name = funcsTable.dict[function_ref].function_name
+    function_return_type = funcsTable.dict[function_ref].return_type
+    return_var_name = f"${function_name}_return_value"
+
+    # Check if return is inside void function
+    if function_return_type == types_map['void']:
+        raise Exception(
+            'Semantic error: Return statement in void function "%s".' % function_name)
+
+    return_value = PilaOperandos.pop()
+    return_type = PTypes.pop()
+
+    # Check if return type is equal to function return type
+    if return_type != function_return_type:
+        raise Exception('Semantic error: Returned value type does not match function return type in function "%s"' %
+                        function_name)
+
+    return_var_name = f"${function_name}_return_value"
+
+    # Add return quad
+    quadruple_name_list.append(
+        Quadruple(Operations.RETURN, left=get_addr(return_value, return_type), target=return_var_name))
+
+    # Add return quad
+    quadruple_address_list.append(Quadruple(Operations.RETURN, left=get_addr(return_value, return_type),
+                                            target=return_var_name))
+    global return_counter
+    return_counter += 1
+    # Add endfunc quad
+    quadruple_name_list.append(Quadruple(Operations.ENDFUNC))
+    # Addr quad list
+    quadruple_address_list.append(Quadruple(Operations.ENDFUNC))
     pass
 
 
@@ -876,6 +925,7 @@ def p_global_declaration(p):
 
 def p_global_statement(p):
     '''global_statement : declare_function
+    | declare_function_void
     | print'''
     pass
 
@@ -898,19 +948,24 @@ def p_statement(p):
     | if_condition
     | while_loop
     | absolute_call
+    | return
     | print'''
     pass
 
 
 def p_declare_function(p):
-    '''declare_function : FUNCTION ID new_function_scope LESSTHAN function_type GREATERTHAN LPARENT params RPARENT LBRACKET function_start_quad statement_list RBRACKET close_current_scope SEMICOLON endfunc_quad'''
+    '''declare_function : FUNCTION ID new_function_scope LESSTHAN function_type GREATERTHAN LPARENT params RPARENT LBRACKET function_start_quad statement_list return RBRACKET endfunc_quad close_current_scope SEMICOLON'''
+    pass
+
+
+def p_declare_function_void(p):
+    '''declare_function_void : FUNCTION ID new_function_scope LESSTHAN VOID_TYPE set_func_return_type GREATERTHAN LPARENT params RPARENT LBRACKET function_start_quad statement_list RBRACKET endfunc_quad close_current_scope SEMICOLON'''
     pass
 
 
 def p_function_type(p):
     '''function_type : FLOAT_TYPE set_func_return_type
     | STRING_TYPE set_func_return_type
-    | VOID_TYPE set_func_return_type
     | BOOL_TYPE set_func_return_type'''
     pass
 
@@ -936,6 +991,11 @@ def p_function_call_value(p):
 
 def p_function_call(p):
     '''function_call : ID init_func_call LPARENT arg_list RPARENT create_gosub_quad SEMICOLON'''
+    pass
+
+
+def p_return(p):
+    '''return : RETURN mega_expression validate_return SEMICOLON'''
     pass
 
 
@@ -1086,7 +1146,7 @@ def p_empty(p):
 
 
 def p_error(p):
-    raise Exception('Syntax error in line: ' + str(p.lineno))
+    raise Exception('Syntax error in line: ' + str(p.lineno), p.value[0])
 
 
 def print_funcsTable():
@@ -1143,7 +1203,6 @@ def create_scope_table():
             'function_name': value.function_name,
             'quad_start': value.quad_start,
             'return_type': value.return_type,
-            'return_value': value.return_value,
         }
     return scope_table
 

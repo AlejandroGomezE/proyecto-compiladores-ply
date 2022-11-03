@@ -1,12 +1,29 @@
 program programa;
 
-var float p = 2.0;
-p = p + 8.0;
-
-function hola<void>(float a, float b) {
-    print(a);
+function hola<float>(float a, float b) {
+    if(a + b < 40.0){
+		return hola(a + 10.0, b + 20.0);
+	}	
+	return a + b;
 };
 
 main(){
-  hola(10.0 + 2.0, 20.0);
+  var float p = hola(10.0, 20.0);
+  print(p);
+};
+
+
+
+program programa;
+
+function natural<float>(float n) {
+  if(n < 40.0){
+    print(n);
+		natural(n + 1.0);
+	}	
+	return 0.0;
+};
+
+main(){
+  natural(1.0);
 };

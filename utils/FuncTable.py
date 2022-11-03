@@ -9,7 +9,6 @@ class Table:
         self.function_name = None
         self.quad_start = None
         self.return_type = None
-        self.return_value = None
 
     def add_parameter(self, name):
         self.params.append(name)

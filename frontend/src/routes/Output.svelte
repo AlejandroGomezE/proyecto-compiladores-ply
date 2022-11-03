@@ -31,9 +31,6 @@
   //Return quad
   let return_quad_pointer = [];
 
-  //Function call stack
-  let function_call_stack = [];
-
   function vm(compiled_data) {
     console.log(compiled_data);
 
@@ -46,8 +43,6 @@
     scope_ref_stack = [];
 
     return_quad_pointer = [];
-
-    function_call_stack = [];
 
     current_scope_ref = -1;
 
@@ -169,11 +164,10 @@
           i = quad.target;
           break;
         case 'era':
-          function_call_stack.push(quad.target);
-          if (function_call_stack.at(-1) == function_call_stack.at(-2)) {
+          scope_ref_stack.push(scopes_counter);
+          if (scope_ref_stack.at(-1) == scope_ref_stack.at(-2)) {
             add_scope_execution_layer();
           } else {
-            scope_ref_stack.push(scopes_counter);
             add_scope_to_execution_state(current_scope_ref);
           }
           i++;
@@ -187,10 +181,25 @@
           return_quad_pointer.push(i + 1);
           i = quad.target;
           break;
+        case 'return':
+          value = get_value_from_address(quad.left);
+          // Add return value to current_scope.scope_layers.at(-2) if scope_ref_stack.at(-2) is equal
+          if (scope_ref_stack.at(-1) == scope_ref_stack.at(-2)) {
+            set_value_previous_layer(quad.target, value);
+          } else {
+            // If its returning value to main, set value in global scope layer
+            set_value_global(quad.target, value);
+          }
+          i++;
+          break;
         case 'endFunc':
           if (scope_ref_stack.at(-1) == scope_ref_stack.at(-2)) {
+            // Popped scope execution layer
+            /* console.log(execution_state.scopes[current_scope_ref][scope_layers]).at(-1); */
             pop_scope_execution_layer();
           } else {
+            // Popped function scope execution memory
+            /* console.log(execution_state.scopes[current_scope_ref]); */
             delete_scope_from_execution_state();
           }
           i = return_quad_pointer.pop();
@@ -279,6 +288,18 @@
     }
   }
 
+  // Set value to global function address
+  function set_value_global(address, value) {
+    execution_state.scopes[0].scope_layers.at(-1)[address] = value;
+  }
+
+  // Set value to previous scope layer in same scope
+  function set_value_previous_layer(address, value) {
+    console.log(execution_state.scopes[current_scope_ref].scope_layers.at(-1));
+    console.log(execution_state.scopes[current_scope_ref].scope_layers.at(-2));
+    execution_state.scopes[current_scope_ref].scope_layers.at(-2)[address] = value;
+  }
+
   // Get value from address
   function get_value_from_address(address) {
     // Get scope ref where address is defined
@@ -300,6 +321,7 @@
     }
     return -1;
   }
+
   // Add p element to output area
   function add_p_element_to_output_area(text) {
     execution_actions.push({
