@@ -17,7 +17,7 @@
   let action_id = 0;
 
   //Scopes refs execution trail
-  let scope_ref_stack = [];
+  let scopes_ref_execution_stack = [];
 
   //Execution State management
   let execution_state = {};
@@ -40,14 +40,13 @@
 
     execution_actions = [];
 
-    scope_ref_stack = [];
+    scopes_ref_execution_stack = [];
 
     return_quad_pointer = [];
 
     current_scope_ref = -1;
 
     execution_state = {
-      path_stack: [],
       scopes: {},
     };
 
@@ -62,8 +61,6 @@
 
       switch (quad.op_code) {
         case 'start':
-          //Add global scope to execution stack
-          scope_ref_stack.push(scopes_counter);
           //Add global scope
           add_scope_to_execution_state(current_scope_ref);
           //Add contants to global scope
@@ -81,8 +78,6 @@
           i++;
           break;
         case 'main':
-          //Add main scope to execution stack
-          scope_ref_stack.push(scopes_counter);
           //Add main scope
           add_scope_to_execution_state(current_scope_ref);
           i++;
@@ -164,8 +159,7 @@
           i = quad.target;
           break;
         case 'era':
-          scope_ref_stack.push(scopes_counter);
-          if (scope_ref_stack.at(-1) == scope_ref_stack.at(-2)) {
+          if (scopes_ref_execution_stack.at(-1) == scopes_ref_execution_stack.at(-2)) {
             add_scope_execution_layer();
           } else {
             add_scope_to_execution_state(current_scope_ref);
@@ -183,8 +177,8 @@
           break;
         case 'return':
           value = get_value_from_address(quad.left);
-          // Add return value to current_scope.scope_layers.at(-2) if scope_ref_stack.at(-2) is equal
-          if (scope_ref_stack.at(-1) == scope_ref_stack.at(-2)) {
+          // Add return value to current_scope.scope_layers.at(-2) if scopes_ref_execution_stack.at(-2) is equal
+          if (scopes_ref_execution_stack.at(-1) == scopes_ref_execution_stack.at(-2)) {
             set_value_previous_layer(quad.target, value);
           } else {
             // If its returning value to main, set value in global scope layer
@@ -193,7 +187,7 @@
           i++;
           break;
         case 'endFunc':
-          if (scope_ref_stack.at(-1) == scope_ref_stack.at(-2)) {
+          if (scopes_ref_execution_stack.at(-1) == scopes_ref_execution_stack.at(-2)) {
             // Popped scope execution layer
             /* console.log(execution_state.scopes[current_scope_ref][scope_layers]).at(-1); */
             pop_scope_execution_layer();
@@ -227,35 +221,32 @@
 
   // Add scope to execution state
   function add_scope_to_execution_state(parent_ref) {
+    scopes_ref_execution_stack.push(scopes_counter);
     execution_state.scopes[scopes_counter] = {
       parent_ref,
       scope_layers: [{}],
     };
     current_scope_ref = scopes_counter;
-    execution_state.path_stack.push(scopes_counter);
     scopes_counter++;
   }
 
   // Pop scope execution layer
   function pop_scope_execution_layer() {
-    let current_scope = execution_state.scopes[current_scope_ref];
-    current_scope.scope_layers.pop();
-    execution_state.path_stack.pop();
-    current_scope_ref = execution_state.path_stack[execution_state.path_stack.length - 1];
+    execution_state.scopes[current_scope_ref].scope_layers.pop();
+    scopes_ref_execution_stack.pop();
   }
 
   //Add scope execution layer
   function add_scope_execution_layer() {
     execution_state.scopes[current_scope_ref].scope_layers.push({});
-    execution_state.path_stack.push(current_scope_ref);
+    scopes_ref_execution_stack.push(current_scope_ref);
   }
 
   // Delete scope from execution state
   function delete_scope_from_execution_state() {
-    let parent_ref = execution_state.scopes[current_scope_ref].parent_ref;
     delete execution_state.scopes[current_scope_ref];
-    current_scope_ref = parent_ref;
-    execution_state.path_stack.pop();
+    scopes_ref_execution_stack.pop();
+    current_scope_ref = scopes_ref_execution_stack.at(-1);
   }
 
   // For each scope from current to parent -> parent etc. check their last scope_layer for var address
@@ -294,8 +285,6 @@
 
   // Set value to previous scope layer in same scope
   function set_value_previous_layer(address, value) {
-    console.log(execution_state.scopes[current_scope_ref].scope_layers.at(-1));
-    console.log(execution_state.scopes[current_scope_ref].scope_layers.at(-2));
     execution_state.scopes[current_scope_ref].scope_layers.at(-2)[address] = value;
   }
 
@@ -307,18 +296,6 @@
       // Return value for given address
       return execution_state.scopes[aux_ref].scope_layers.at(-1)[address];
     }
-  }
-
-  // Get address of functions params
-  function get_address_of_function_param(function_name, param_name) {
-    let aux_ref = current_scope_ref;
-    while (aux_ref !== -1) {
-      let scope = compiled_data.scopes_table[aux_ref];
-
-      // Go to parent scope while > -1
-      aux_ref = scope.parent_ref;
-    }
-    return -1;
   }
 
   // Add p element to output area
