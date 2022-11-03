@@ -159,11 +159,7 @@
           i = quad.target;
           break;
         case 'era':
-          if (scopes_ref_execution_stack.at(-1) == scopes_ref_execution_stack.at(-2)) {
-            add_scope_execution_layer();
-          } else {
-            add_scope_to_execution_state(current_scope_ref);
-          }
+          add_scope_to_execution_state(current_scope_ref);
           i++;
           break;
         case 'param':
@@ -177,25 +173,11 @@
           break;
         case 'return':
           value = get_value_from_address(quad.left);
-          // Add return value to current_scope.scope_layers.at(-2) if scopes_ref_execution_stack.at(-2) is equal
-          if (scopes_ref_execution_stack.at(-1) == scopes_ref_execution_stack.at(-2)) {
-            set_value_previous_layer(quad.target, value);
-          } else {
-            // If its returning value to main, set value in global scope layer
-            set_value_global(quad.target, value);
-          }
+          set_value_global(quad.target, value);
           i++;
           break;
         case 'endFunc':
-          if (scopes_ref_execution_stack.at(-1) == scopes_ref_execution_stack.at(-2)) {
-            // Popped scope execution layer
-            /* console.log(execution_state.scopes[current_scope_ref][scope_layers]).at(-1); */
-            pop_scope_execution_layer();
-          } else {
-            // Popped function scope execution memory
-            /* console.log(execution_state.scopes[current_scope_ref]); */
-            delete_scope_from_execution_state();
-          }
+          delete_scope_from_execution_state();
           i = return_quad_pointer.pop();
           break;
         case 'absolute':
@@ -224,22 +206,10 @@
     scopes_ref_execution_stack.push(scopes_counter);
     execution_state.scopes[scopes_counter] = {
       parent_ref,
-      scope_layers: [{}],
+      scope_memory: {},
     };
     current_scope_ref = scopes_counter;
     scopes_counter++;
-  }
-
-  // Pop scope execution layer
-  function pop_scope_execution_layer() {
-    execution_state.scopes[current_scope_ref].scope_layers.pop();
-    scopes_ref_execution_stack.pop();
-  }
-
-  //Add scope execution layer
-  function add_scope_execution_layer() {
-    execution_state.scopes[current_scope_ref].scope_layers.push({});
-    scopes_ref_execution_stack.push(current_scope_ref);
   }
 
   // Delete scope from execution state
@@ -249,14 +219,14 @@
     current_scope_ref = scopes_ref_execution_stack.at(-1);
   }
 
-  // For each scope from current to parent -> parent etc. check their last scope_layer for var address
+  // For each scope from current to parent -> parent etc. check their last scope_memory for var address
   function get_scope_ref_from_address(address) {
     // Current scope of execution
     let aux_ref = current_scope_ref;
     while (aux_ref !== -1) {
       let scope = execution_state.scopes[aux_ref];
       // If address has a defines value return scope_ref
-      if (scope.scope_layers.at(-1)[address] !== undefined) {
+      if (scope.scope_memory[address] !== undefined) {
         return aux_ref;
       }
       // Go to parent scope while > -1
@@ -271,21 +241,16 @@
     let aux_ref = get_scope_ref_from_address(address);
     if (aux_ref !== -1) {
       // Modify current value because it exists
-      execution_state.scopes[aux_ref].scope_layers.at(-1)[address] = value;
+      execution_state.scopes[aux_ref].scope_memory[address] = value;
     } else {
       // Create new {address: value} pair in scope layer of current scope
-      execution_state.scopes[current_scope_ref].scope_layers.at(-1)[address] = value;
+      execution_state.scopes[current_scope_ref].scope_memory[address] = value;
     }
   }
 
   // Set value to global function address
   function set_value_global(address, value) {
-    execution_state.scopes[0].scope_layers.at(-1)[address] = value;
-  }
-
-  // Set value to previous scope layer in same scope
-  function set_value_previous_layer(address, value) {
-    execution_state.scopes[current_scope_ref].scope_layers.at(-2)[address] = value;
+    execution_state.scopes[0].scope_memory[address] = value;
   }
 
   // Get value from address
@@ -294,7 +259,7 @@
     let aux_ref = get_scope_ref_from_address(address);
     if (aux_ref !== -1) {
       // Return value for given address
-      return execution_state.scopes[aux_ref].scope_layers.at(-1)[address];
+      return execution_state.scopes[aux_ref].scope_memory[address];
     }
   }
 
