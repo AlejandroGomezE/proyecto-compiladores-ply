@@ -1,10 +1,13 @@
 program programa;
 
+function natural<float>(float n) {
+  if(n < 40.0){
+    print(n);
+		natural(n + 1.0);
+	}	
+	return 0.0;
+};
+
 main(){
-  var bool i = True;
-  if(i != True){
-    print("e");
-  }else{
-    print("Hola");
-  }
+  natural(1.0);
 };

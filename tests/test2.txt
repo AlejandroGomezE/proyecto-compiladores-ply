@@ -1,7 +1,7 @@
 program programa;
 
 function hola<float>(float a, float b) {
-    if(a + b < 40.0){
+  if(a + b < 40.0){
 		return hola(a + 10.0, b + 20.0);
 	}	
 	return a + b;
@@ -10,20 +10,4 @@ function hola<float>(float a, float b) {
 main(){
   var float p = hola(10.0, 20.0);
   print(p);
-};
-
-
-
-program programa;
-
-function natural<float>(float n) {
-  if(n < 40.0){
-    print(n);
-		natural(n + 1.0);
-	}	
-	return 0.0;
-};
-
-main(){
-  natural(1.0);
 };

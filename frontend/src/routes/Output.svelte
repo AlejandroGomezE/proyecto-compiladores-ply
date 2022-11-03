@@ -227,13 +227,12 @@
 
   // Add scope to execution state
   function add_scope_to_execution_state(parent_ref) {
-    let current_scope_counter = scopes_counter;
-    execution_state.scopes[current_scope_counter] = {
+    execution_state.scopes[scopes_counter] = {
       parent_ref,
       scope_layers: [{}],
     };
-    current_scope_ref = current_scope_counter;
-    execution_state.path_stack.push(current_scope_counter);
+    current_scope_ref = scopes_counter;
+    execution_state.path_stack.push(scopes_counter);
     scopes_counter++;
   }
 
