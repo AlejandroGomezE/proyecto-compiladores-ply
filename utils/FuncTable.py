@@ -17,6 +17,7 @@ class Table:
         self.vars[name] = {
             'type': type,
             'addr': addr,
+            'd1': None,
         }
 
     def __str__(self):

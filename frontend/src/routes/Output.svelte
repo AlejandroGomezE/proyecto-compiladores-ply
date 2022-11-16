@@ -85,67 +85,151 @@
           i++;
           break;
         case '+':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand + right_operand);
           i++;
           break;
         case '-':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand - right_operand);
           i++;
           break;
         case '*':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand * right_operand);
           i++;
           break;
         case '/':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand / right_operand);
           i++;
           break;
         case '=':
           assign_value = get_value_from_address(quad.left);
-          set_value_to_address(quad.target, assign_value);
+          if (compiled_data.virtual_var_list.includes(quad.target)) {
+            set_value_to_address(get_value_from_address(quad.target), assign_value);
+          } else {
+            set_value_to_address(quad.target, assign_value);
+          }
           i++;
           break;
         case '<':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand < right_operand);
           i++;
           break;
         case '>':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand > right_operand);
           i++;
           break;
         case '<=':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand <= right_operand);
           i++;
           break;
         case '>=':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand >= right_operand);
           i++;
           break;
         case '==':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand === right_operand);
           i++;
           break;
         case '!=':
-          left_operand = get_value_from_address(quad.left);
-          right_operand = get_value_from_address(quad.right);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            left_operand = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            left_operand = get_value_from_address(quad.left);
+          }
+          if (compiled_data.virtual_var_list.includes(quad.right)) {
+            right_operand = get_value_from_address(get_value_from_address(quad.right));
+          } else {
+            right_operand = get_value_from_address(quad.right);
+          }
           set_value_to_address(quad.target, left_operand !== right_operand);
           i++;
           break;
@@ -165,7 +249,11 @@
           i++;
           break;
         case 'param':
-          value = get_value_from_address(quad.left);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            value = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            value = get_value_from_address(quad.left);
+          }
           set_value_to_address(quad.target, value);
           i++;
           break;
@@ -174,7 +262,11 @@
           i = quad.target;
           break;
         case 'return':
-          value = get_value_from_address(quad.left);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            value = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            value = get_value_from_address(quad.left);
+          }
           set_value_global(quad.target, value);
           delete_scope_from_execution_state();
           i = return_quad_pointer.pop();
@@ -183,17 +275,38 @@
           delete_scope_from_execution_state();
           i = return_quad_pointer.pop();
           break;
+        case 'ver':
+          let inf = get_value_from_address(quad.target);
+          let sup = get_value_from_address(quad.right);
+          if (inf < 0 || inf > sup) {
+            add_p_element_to_output_area('Error: Index out of bounds');
+          }
+          i++;
+          break;
+        case '+v':
+          let k = get_value_from_address(quad.right);
+          set_value_global(quad.target, quad.left + k);
+          i++;
+          break;
         case 'absolute':
-          value = get_value_from_address(quad.left);
-          if(quad.target){
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            value = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            value = get_value_from_address(quad.left);
+          }
+          if (quad.target) {
             set_value_to_address(quad.target, Math.abs(value));
-          }else{
+          } else {
             add_p_element_to_output_area(Math.abs(value));
           }
           i++;
           break;
         case 'print':
-          value = get_value_from_address(quad.target);
+          if (compiled_data.virtual_var_list.includes(quad.target)) {
+            value = get_value_from_address(get_value_from_address(quad.target));
+          } else {
+            value = get_value_from_address(quad.target);
+          }
           add_p_element_to_output_area(value);
           i++;
           break;
@@ -245,6 +358,10 @@
 
   // Set value to address
   function set_value_to_address(address, value) {
+    if (compiled_data.virtual_var_list.includes(address)) {
+      set_value_global(get_value_from_address(address), value);
+      return;
+    }
     // Get scope ref where address is defined
     let aux_ref = get_scope_ref_from_address(address);
     if (aux_ref !== -1) {
@@ -261,10 +378,15 @@
     execution_state.scopes[0].scope_memory[address] = value;
   }
 
+  // Get global value from address
+  function get_value_global(address) {
+    return execution_state.scopes[0].scope_memory[address];
+  }
+
   // Get value from address
   function get_value_from_address(address) {
-    // Get scope ref where address is defined
     let aux_ref = get_scope_ref_from_address(address);
+    // Get scope ref where address is defined
     if (aux_ref !== -1) {
       // Return value for given address
       return execution_state.scopes[aux_ref].scope_memory[address];

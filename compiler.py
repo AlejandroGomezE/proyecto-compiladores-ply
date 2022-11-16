@@ -8,8 +8,8 @@ from utils.FuncTable import FuncTable, Table
 # SCANNER
 #######################################
 
-symbols = ['PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'EQUAL', 'LPARENT', 'RPARENT', 'SEMICOLON', 'LBRACKET',
-           'RBRACKET', 'LESSTHAN', 'GREATERTHAN', 'EQUALEQUAL', 'NOTEQUAL', 'LESSTHANOREQUAL', 'GREATERTHANOREQUAL', 'COMMA']
+symbols = ['PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'EQUAL', 'LPARENT', 'RPARENT', 'SEMICOLON', 'LBRACE',
+           'RBRACE', 'LBRACKET', 'RBRACKET', 'LESSTHAN', 'GREATERTHAN', 'EQUALEQUAL', 'NOTEQUAL', 'LESSTHANOREQUAL', 'GREATERTHANOREQUAL', 'COMMA']
 
 reserved = {
     'var': 'VAR',
@@ -47,8 +47,10 @@ t_LPARENT = r'\('
 t_RPARENT = r'\)'
 t_COMMA = r','
 t_SEMICOLON = r';'
-t_LBRACKET = r'\{'
-t_RBRACKET = r'\}'
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
 t_LESSTHAN = r'<'
 t_GREATERTHAN = r'>'
 t_EQUAL = r'='
@@ -124,6 +126,7 @@ operations_map = {
     'gotoF': Operations.GOTOF,
     'gosub': Operations.GOSUB,
     'era': Operations.ERA,
+    'ver': Operations.VER,
     'endFunc': Operations.ENDFUNC,
     'start': Operations.START,
     'end': Operations.END,
@@ -168,6 +171,12 @@ constants_table = {}
 PJumps = []
 # Function declared stack
 last_func_call = []
+# Array stack
+array_name_stack = []
+# Array size stack
+array_size_stack = []
+# Virtual vars stack
+virtual_var_list = []
 # Return counter
 return_counter = 0
 # Argument counter for function calls
@@ -202,6 +211,9 @@ def init_compiler():
     global constants_table
     global PJumps
     global last_func_call
+    global array_name_stack
+    global array_size_stack
+    global virtual_var_list
     global argument_counter
     global last_string_address
     global last_float_address
@@ -231,6 +243,12 @@ def init_compiler():
     PJumps = []
     # Function declared stack
     last_func_call = []
+    # Array stack
+    array_name_stack = []
+    # Array size stack
+    array_size_stack = []
+    # Virtual vars stack
+    virtual_var_list = []
     # Return counter
     return_counter = 0
     # Argument counter for function calls
@@ -257,6 +275,14 @@ def create_temp_var():
     # Create a new temporary variable
     global temps_counter
     result = "$" + f"t{temps_counter}"
+    temps_counter += 1
+    return result
+
+
+def create_temp_virtual_var():
+    # Create a new temporary variable
+    global temps_counter
+    result = "V" + f"t{temps_counter}"
     temps_counter += 1
     return result
 
@@ -701,10 +727,65 @@ def p_check_variable_exists(p):
     aux_scope_ref = current_scope_ref
     while aux_scope_ref > -1:
         if var_name in funcsTable.dict[aux_scope_ref].vars:
+            if funcsTable.dict[aux_scope_ref].vars[var_name]['d1']:
+                raise Exception(
+                    'Semantic error: Array "%s" is not indexed.' % var_name)
             global current_type
             # change current type if it exists
             current_type = funcsTable.dict[aux_scope_ref].vars[var_name]['type']
         aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+    pass
+
+
+def p_init_array(p):
+    'init_array : '
+    # get array initial position from type stack/mem
+    array_name = get_last_token(p)
+    array_type = current_type
+    if array_type != Types.INT_TYPE and array_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: Array "%s" must be of type int or float.' % array_name)
+    array_address = get_addr(array_name, array_type)
+    # add to scope tree
+    funcsTable.dict[current_scope_ref].add_variable(
+        array_name, array_type, array_address)
+    # add to last stack referenced
+    global array_name_stack
+    array_name_stack.append(array_name)
+    pass
+
+
+def p_init_array_size(p):
+    'init_array_size : '
+    # add size to size stack
+    array_size = get_last_token(p)
+    array_size_stack.append(array_size)
+    pass
+
+
+def reserve_array_mem(arr_size, arr_type):
+    if(arr_type == Types.INT_TYPE):
+        global last_int_address
+        check_out_of_mem(last_int_address + arr_size - 1, DIR_INT_MAX)
+        last_int_address += arr_size - 1
+    elif(arr_type == Types.FLOAT_TYPE):
+        global last_float_address
+        check_out_of_mem(last_float_address + arr_size - 1, DIR_FLOAT_MAX)
+        last_float_address += arr_size - 1
+    else:
+        raise Exception('Semantic error: Out of memory for array declaration.')
+
+
+def p_init_array_variable(p):
+    'init_array_variable : '
+    # pop the size of the array, 'apartar' la memoria
+    array_size = int(array_size_stack.pop())
+    array_type = current_type
+    reserve_array_mem(array_size, array_type)
+    # Set size in scope tree
+    last_array_name = array_name_stack.pop()
+    funcsTable.dict[current_scope_ref].vars[last_array_name]['d1'] = array_size
+    insert_constant(array_size, Types.INT_TYPE)
     pass
 
 
@@ -770,6 +851,74 @@ def p_process_plus_minus_operators(p):
 def p_process_mult_div_operators(p):
     'process_mult_div_operators : '
     math_operation_quadruple([Operations.TIMES, Operations.DIVIDE])
+    pass
+
+
+def p_array_name_reference(p):
+    'array_name_reference : '
+    array_name = get_last_token(p)
+    array_name_stack.append(array_name)
+    pass
+
+
+def p_array_reference_value(p):
+    'array_reference_value : '
+    # verify that array exists
+    array_name = array_name_stack.pop()
+    aux_scope_ref = current_scope_ref
+    d1 = -1
+    array_start_address = -1
+    array_type = None
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            # get array type
+            array_type = funcsTable.dict[aux_scope_ref].vars[array_name]['type']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+    
+    # VER Quad
+    s1 = PilaOperandos.pop()
+    s1_type = PTypes.pop()
+
+    if s1_type != Types.INT_TYPE:
+        raise Exception(
+            'Semantic error: Tried to access array "%s" with a non INT value.' % array_name)
+
+    d1_address = constants_table[d1]['addr']
+    # Add to debug quad
+    quadruple_name_list.append(Quadruple(Operations.VER, 0, d1, s1))
+
+    # Add to addr quad
+    quadruple_address_list.append(
+        Quadruple(Operations.VER, 0, d1_address, get_addr(s1, array_type)))
+
+    # Get address with QUAD
+    virtual_var_name = create_temp_virtual_var()
+    virtual_var_address = get_addr(virtual_var_name, array_type)
+
+    virtual_var_list.append(virtual_var_address)
+
+    funcsTable.dict[current_scope_ref].add_variable(
+        virtual_var_name, array_type, virtual_var_address)
+
+    # Add to debug quad
+    quadruple_name_list.append(
+        Quadruple(Operations.PLUSV, array_start_address, s1, virtual_var_name))
+
+    # Add to addr quad
+    quadruple_address_list.append(Quadruple(Operations.PLUSV, array_start_address, get_addr(
+        s1, Types.INT_TYPE), virtual_var_address))
+
+    PilaOperandos.append(virtual_var_name)
+    PTypes.append(array_type)
     pass
 
 
@@ -974,7 +1123,7 @@ def p_global_statement(p):
 
 
 def p_main_declaration(p):
-    '''main_declaration : MAIN main_quad LPARENT RPARENT LBRACKET new_scope statement_list RBRACKET close_current_scope SEMICOLON'''
+    '''main_declaration : MAIN main_quad LPARENT RPARENT LBRACE new_scope statement_list RBRACE close_current_scope SEMICOLON'''
     pass
 
 
@@ -997,12 +1146,12 @@ def p_statement(p):
 
 
 def p_declare_function(p):
-    '''declare_function : FUNCTION ID new_function_scope LESSTHAN function_type GREATERTHAN LPARENT params RPARENT LBRACKET function_start_quad statement_list return RBRACKET endfunc_quad close_current_scope SEMICOLON'''
+    '''declare_function : FUNCTION ID new_function_scope LESSTHAN function_type GREATERTHAN LPARENT params RPARENT LBRACE function_start_quad statement_list return RBRACE endfunc_quad close_current_scope SEMICOLON'''
     pass
 
 
 def p_declare_function_void(p):
-    '''declare_function_void : FUNCTION ID new_function_scope LESSTHAN VOID_TYPE set_func_return_type GREATERTHAN LPARENT params RPARENT LBRACKET function_start_quad statement_list RBRACKET endfunc_quad close_current_scope SEMICOLON'''
+    '''declare_function_void : FUNCTION ID new_function_scope LESSTHAN VOID_TYPE set_func_return_type GREATERTHAN LPARENT params RPARENT LBRACE function_start_quad statement_list RBRACE endfunc_quad close_current_scope SEMICOLON'''
     pass
 
 
@@ -1060,7 +1209,9 @@ def p_arg(p):
 
 
 def p_declare_var(p):
-    '''declare_var : VAR var_type ID init_variable SEMICOLON'''
+    '''declare_var : VAR var_type ID init_variable SEMICOLON
+    | VAR var_type ID init_array LBRACKET INT init_array_size RBRACKET init_array_variable SEMICOLON
+    '''
     pass
 
 
@@ -1147,20 +1298,25 @@ def p_literal(p):
 
 
 def p_reference(p):
-    '''reference : ID check_variable_exists add_id_type_to_stack'''
+    '''reference : ID check_variable_exists add_id_type_to_stack
+    | array_reference'''
     pass
+
+
+def p_array_reference(p):
+    ''' array_reference : ID array_name_reference LBRACKET add_separator expression RBRACKET remove_separator array_reference_value'''
 
 
 def p_if_condition(p):
     '''
-    if_condition : IF LPARENT mega_expression RPARENT LBRACKET create_gotof_quad new_scope statement_list RBRACKET close_current_scope else_condition goto_end_position
+    if_condition : IF LPARENT mega_expression RPARENT LBRACE create_gotof_quad new_scope statement_list RBRACE close_current_scope else_condition goto_end_position
     '''
     pass
 
 
 def p_else_condition(p):
     '''
-    else_condition : ELSE goto_skip_else LBRACKET new_scope statement_list RBRACKET close_current_scope
+    else_condition : ELSE goto_skip_else LBRACE new_scope statement_list RBRACE close_current_scope
     | empty
     '''
     pass
@@ -1168,7 +1324,7 @@ def p_else_condition(p):
 
 def p_while_loop(p):
     '''
-    while_loop : WHILE goto_return_position LPARENT mega_expression RPARENT LBRACKET create_gotof_quad new_scope statement_list RBRACKET return_end_jump_position close_current_scope
+    while_loop : WHILE goto_return_position LPARENT mega_expression RPARENT LBRACE create_gotof_quad new_scope statement_list RBRACE return_end_jump_position close_current_scope
     '''
     pass
 
@@ -1281,10 +1437,10 @@ def executeCompilerCode(code):
     init_compiler()
     lex()
     # Build the parser
-    parser = yacc(optimize=1, debug=False, write_tables=False)
+    parser = yacc(debug=True, write_tables=False)
     # Make a single string of the lines
     parser.parse(code, debug=False)
-    return get_object_array(), contants_table_to_json(), create_scope_table()
+    return get_object_array(), contants_table_to_json(), create_scope_table(), virtual_var_list
 
 
 if __name__ == "__main__":

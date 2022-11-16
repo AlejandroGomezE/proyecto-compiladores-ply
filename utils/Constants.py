@@ -12,6 +12,7 @@ class Types(Enum):
 
 class Operations(Enum):
     PLUS = '+'
+    PLUSV = '+v'
     MINUS = '-'
     TIMES = '*'
     DIVIDE = '/'
@@ -26,6 +27,7 @@ class Operations(Enum):
     GOTOF = 'gotoF'
     GOSUB = 'gosub'
     ERA = 'era'
+    VER = 'ver'
     ENDFUNC = 'endFunc'
     START = 'start'
     END = 'end'

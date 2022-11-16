@@ -1,0 +1,13 @@
+program programa;
+
+function hola<int>(int a, int b) {
+    return a + b;
+};
+
+main(){
+  var int a[10];
+  a[2] = hola(10, 5);
+  print(a[2]);
+  a[2] = 20;
+  print(a[2]);
+};
