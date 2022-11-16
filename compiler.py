@@ -67,8 +67,8 @@ def t_ID(t):
     return t
 
 
-t_FLOAT = r'((0|[1-9][0-9]*)\.[0-9][0-9]*)'
-t_INT = r'(0|[1-9][0-9]*)'
+t_FLOAT = r'[-]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'
+t_INT = r'(0|[-]?[1-9][0-9]*)'
 t_STRING = r'("(\\"|[^"])*")'
 
 
@@ -314,7 +314,7 @@ def get_func_ref(aux_scope_ref, function_name):
 def is_constant(token):
     # Check if token is a constant
     token = str(token)
-    return token[0] == '"' or token[0].isdigit() or token == "True" or token == "False"
+    return token[0] == '"' or token[0].isdigit() or (token[0] == '-' and token[1].isdigit()) or token == "True" or token == "False"
 
 
 def insert_constant(constant, constant_type):
@@ -883,7 +883,7 @@ def p_array_reference_value(p):
             raise Exception(
                 'Semantic error: Variable array "%s" does not exist.' % array_name)
         aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
-    
+
     # VER Quad
     s1 = PilaOperandos.pop()
     s1_type = PTypes.pop()
