@@ -1,0 +1,5 @@
+program programa;
+
+main(){
+  print(1);
+};

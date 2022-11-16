@@ -70,6 +70,8 @@
               value = key.replace(/"/g, '');
             } else if (compiled_data.constants_table[key]['type'] === 'float') {
               value = parseFloat(key);
+            } else if (compiled_data.constants_table[key]['type'] === 'int') {
+              value = parseInt(key);
             } else if (compiled_data.constants_table[key]['type'] === 'bool') {
               value = key === 'True' ? true : false;
             }
@@ -174,15 +176,20 @@
         case 'return':
           value = get_value_from_address(quad.left);
           set_value_global(quad.target, value);
-          i++;
+          delete_scope_from_execution_state();
+          i = return_quad_pointer.pop();
           break;
         case 'endFunc':
           delete_scope_from_execution_state();
           i = return_quad_pointer.pop();
           break;
         case 'absolute':
-          value = get_value_from_address(quad.target);
-          add_p_element_to_output_area(Math.abs(value));
+          value = get_value_from_address(quad.left);
+          if(quad.target){
+            set_value_to_address(quad.target, Math.abs(value));
+          }else{
+            add_p_element_to_output_area(Math.abs(value));
+          }
           i++;
           break;
         case 'print':
@@ -217,6 +224,7 @@
     delete execution_state.scopes[current_scope_ref];
     scopes_ref_execution_stack.pop();
     current_scope_ref = scopes_ref_execution_stack.at(-1);
+    scopes_counter--;
   }
 
   // For each scope from current to parent -> parent etc. check their last scope_memory for var address

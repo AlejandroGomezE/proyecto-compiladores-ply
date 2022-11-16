@@ -1,13 +1,13 @@
 program programa;
 
-function natural<float>(float n) {
-  if(n < 40.0){
+function natural<int>(int n) {
+  if(n < 40){
     print(n);
-		natural(n + 1.0);
+		natural(n + 1);
 	}	
-	return 0.0;
+	return 0;
 };
 
 main(){
-  natural(1.0);
+  natural(1);
 };

@@ -15,6 +15,7 @@ reserved = {
     'var': 'VAR',
     'program': 'PROGRAM',
     'float': 'FLOAT_TYPE',
+    'int': 'INT_TYPE',
     'string': 'STRING_TYPE',
     'bool': 'BOOL_TYPE',
     'void': 'VOID_TYPE',
@@ -30,7 +31,7 @@ reserved = {
     'return': 'RETURN',
 }
 
-extras = ['ID', 'FLOAT', 'STRING']
+extras = ['ID', 'INT', 'FLOAT', 'STRING']
 
 tokens = symbols + extras + list(reserved.values())
 
@@ -65,6 +66,7 @@ def t_ID(t):
 
 
 t_FLOAT = r'((0|[1-9][0-9]*)\.[0-9][0-9]*)'
+t_INT = r'(0|[1-9][0-9]*)'
 t_STRING = r'("(\\"|[^"])*")'
 
 
@@ -132,6 +134,7 @@ operations_map = {
 
 types_map = {
     'float': Types.FLOAT_TYPE,
+    'int': Types.INT_TYPE,
     'bool': Types.BOOL_TYPE,
     'string': Types.STRING_TYPE,
     'void': Types.VOID_TYPE,
@@ -181,6 +184,9 @@ last_float_address = DIR_SIZE * 2
 DIR_BOOL_MAX = DIR_SIZE * 4 - 1
 last_bool_address = DIR_SIZE * 3
 
+DIR_INT_MAX = DIR_SIZE * 5 - 1
+last_int_address = DIR_SIZE * 4
+
 
 def init_compiler():
     # Resets every global helper
@@ -200,6 +206,7 @@ def init_compiler():
     global last_string_address
     global last_float_address
     global last_bool_address
+    global last_int_address
     global return_counter
 
     current_type = None
@@ -233,6 +240,7 @@ def init_compiler():
     last_string_address = DIR_SIZE
     last_float_address = DIR_SIZE * 2
     last_bool_address = DIR_SIZE * 3
+    last_int_address = DIR_SIZE * 4
 
 
 def get_last_token(p):
@@ -322,6 +330,11 @@ def get_addr(value, value_type):
         check_out_of_mem(last_float_address, DIR_FLOAT_MAX)
         address = last_float_address
         last_float_address += 1
+    elif(value_type == Types.INT_TYPE):
+        global last_int_address
+        check_out_of_mem(last_int_address, DIR_INT_MAX)
+        address = last_int_address
+        last_int_address += 1
     elif(value_type == Types.BOOL_TYPE):
         global last_bool_address
         check_out_of_mem(last_bool_address, DIR_BOOL_MAX)
@@ -486,7 +499,7 @@ def p_endfunc_quad(p):
 
 
 def p_init_func_call(p):
-    # Check function exists, add start_quad to ERA quad, fondo falso in case of z = 2 + 2 + function(1.0+1.0)
+    # Check function exists, to ERA quad, fondo falso in case of z = 2 + 2 + function(1.0+1.0)
     'init_func_call : '
     POper.append('(')
     function_name = get_last_token(p)
@@ -497,9 +510,6 @@ def p_init_func_call(p):
     if function_ref == -1:
         raise Exception(
             'Semantic error: Function "%s" is not declared.' % function_name)
-
-    # Get func_name start_quad ref value
-    start_quad = funcsTable.dict[function_ref].quad_start
 
     # Debug quad list
     quadruple_name_list.append(Quadruple(Operations.ERA, target=function_name))
@@ -645,10 +655,6 @@ def p_validate_return(p):
                                             target=return_var_name))
     global return_counter
     return_counter += 1
-    # Add endfunc quad
-    quadruple_name_list.append(Quadruple(Operations.ENDFUNC))
-    # Addr quad list
-    quadruple_address_list.append(Quadruple(Operations.ENDFUNC))
     pass
 
 
@@ -660,7 +666,7 @@ def p_add_operator_to_stack(p):
 
 
 def p_set_current_type(p):
-    # change global current_type when you encounter float, string, bool
+    # change global current_type when you encounter float, string, bool, int
     'set_current_type : '
     global current_type
     current_type = types_map[get_last_token(p)]
@@ -714,6 +720,14 @@ def p_add_float_type_to_stack(p):
     token = get_last_token(p)
     insert_constant(token, Types.FLOAT_TYPE)
     add_to_operand_type_stacks(token, Types.FLOAT_TYPE)
+    pass
+
+
+def p_add_int_type_to_stack(p):
+    'add_int_type_to_stack : '
+    token = get_last_token(p)
+    insert_constant(token, Types.INT_TYPE)
+    add_to_operand_type_stacks(token, Types.INT_TYPE)
     pass
 
 
@@ -864,19 +878,48 @@ def p_main_quad(p):
     pass
 
 
-def p_check_absolute_argument(p):
-    'check_absolute_argument : '
+def p_check_absolute_argument_call(p):
+    'check_absolute_argument_call : '
     value_name = PilaOperandos.pop()
     value_type = PTypes.pop()
-    if value_type != Types.FLOAT_TYPE:
+    if value_type != Types.FLOAT_TYPE and value_type != Types.INT_TYPE:
         raise Exception(
-            'Semantic error: absolute() function only accepts floats.')
+            'Semantic error: absolute() function only accepts floats or ints.')
     # Debug Quad list
     quadruple_name_list.append(
-        Quadruple(Operations.ABSOLUTE, target=value_name))
+        Quadruple(Operations.ABSOLUTE, value_name))
     # Addr Quad list
     quadruple_address_list.append(
-        Quadruple(Operations.ABSOLUTE, target=get_addr(value_name, value_type)))
+        Quadruple(Operations.ABSOLUTE, get_addr(value_name, value_type)))
+    pass
+
+
+def p_check_absolute_argument_value(p):
+    'check_absolute_argument_value : '
+    value_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+    if value_type != Types.FLOAT_TYPE and value_type != Types.INT_TYPE:
+        raise Exception(
+            'Semantic error: absolute() function only accepts floats or ints.')
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.ABSOLUTE, value_name, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.ABSOLUTE, get_addr(value_name, value_type), target=result_addr))
     pass
 
 
@@ -965,6 +1008,7 @@ def p_declare_function_void(p):
 
 def p_function_type(p):
     '''function_type : FLOAT_TYPE set_func_return_type
+    | INT_TYPE set_func_return_type
     | STRING_TYPE set_func_return_type
     | BOOL_TYPE set_func_return_type'''
     pass
@@ -1029,6 +1073,7 @@ def p_assign_statement(p):
 
 def p_var_type(p):
     '''var_type : FLOAT_TYPE set_current_type
+    | INT_TYPE set_current_type
     | STRING_TYPE set_current_type
     | BOOL_TYPE set_current_type'''
     pass
@@ -1085,6 +1130,7 @@ def p_value(p):
     value : literal
     | reference
     | function_call_value
+    | absolute_call_value
     '''
     pass
 
@@ -1092,6 +1138,7 @@ def p_value(p):
 def p_literal(p):
     '''
     literal : FLOAT add_float_type_to_stack
+    | INT add_int_type_to_stack
     | STRING add_string_type_stack
     | TRUE add_boolean_type_to_stack
     | FALSE add_boolean_type_to_stack
@@ -1128,7 +1175,14 @@ def p_while_loop(p):
 
 def p_absolute_call(p):
     '''
-    absolute_call : ABSOLUTE LPARENT mega_expression check_absolute_argument RPARENT SEMICOLON
+    absolute_call : ABSOLUTE LPARENT mega_expression check_absolute_argument_call RPARENT SEMICOLON
+    '''
+    pass
+
+
+def p_absolute_call_value(p):
+    '''
+    absolute_call_value : ABSOLUTE LPARENT mega_expression check_absolute_argument_value RPARENT
     '''
     pass
 
@@ -1213,7 +1267,7 @@ def executeCompiler(filename):
     lines = []
     with open('./tests/' + filename) as f:
         lines = f.readlines()
-    lex(optimize=1)
+    lex()
     # Build the parser
     parser = yacc(optimize=1, debug=False, write_tables=False)
     # Make a single string of the lines
@@ -1225,7 +1279,7 @@ def executeCompiler(filename):
 
 def executeCompilerCode(code):
     init_compiler()
-    lex(optimize=1)
+    lex()
     # Build the parser
     parser = yacc(optimize=1, debug=False, write_tables=False)
     # Make a single string of the lines

@@ -2,7 +2,7 @@ program programa;
 
 function hola<float>(float a, float b) {
   if(a + b < 40.0){
-		return hola(a + 10.0, b + 20.0);
+		return hola(a + 40.0, b + 20.0);
 	}	
 	return a + b;
 };
