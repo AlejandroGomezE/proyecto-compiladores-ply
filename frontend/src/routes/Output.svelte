@@ -5,6 +5,9 @@
   export let loading;
   export let error;
   export let compiled_data;
+  let inputDisabled = true;
+  let inputValue = '';
+  let inputType = 'text';
   let execution_actions = [];
 
   $: if (compiled_data) {
@@ -31,7 +34,24 @@
   //Return quad
   let return_quad_pointer = [];
 
-  function vm(compiled_data) {
+  const handleInput = (e) => {
+    // in here, you can switch on type and implement
+    // whatever behaviour you need
+    inputValue = inputType.match(/^(number|range)$/) ? +e.target.value : e.target.value;
+  };
+
+  function waitListener(element, listenerName) {
+    if (!element) return;
+    return new Promise(function (resolve, reject) {
+      var listener = (event) => {
+        element.removeEventListener(listenerName, listener);
+        resolve(event);
+      };
+      element.addEventListener(listenerName, listener);
+    });
+  }
+
+  async function vm(compiled_data) {
     console.log(compiled_data);
 
     scopes_counter = 0;
@@ -276,10 +296,17 @@
           i = return_quad_pointer.pop();
           break;
         case 'ver':
-          let inf = get_value_from_address(quad.target);
-          let sup = get_value_from_address(quad.right);
-          if (inf < 0 || inf > sup) {
+          let s1 = get_value_from_address(quad.target);
+          if (!Number.isInteger(s1)) {
+            add_p_element_to_output_area('Error: Trying to access array with non-integer index');
+            i = compiled_data.quad_list.length - 1;
+            break;
+          }
+          let d1 = get_value_from_address(quad.right);
+          if (s1 < 0 || s1 > d1) {
             add_p_element_to_output_area('Error: Index out of bounds');
+            i = compiled_data.quad_list.length - 1;
+            break;
           }
           i++;
           break;
@@ -307,7 +334,76 @@
           } else {
             value = get_value_from_address(quad.target);
           }
-          add_p_element_to_output_area(value);
+          if (!value) {
+            add_p_element_to_output_area('Error: Trying to print uninitialized value');
+            i = compiled_data.code_quads.length - 1;
+            loading = false;
+            inputDisabled = true;
+            inputValue = '';
+            break;
+          }
+          add_p_element_to_output_area(value.toString());
+          i++;
+          break;
+        case 'read':
+          inputDisabled = false;
+          if (quad.left == 'int' || quad.left == 'float') {
+            inputType = 'number';
+          } else {
+            inputType = 'text';
+          }
+          loading = true;
+          await waitListener(document.getElementById('readValue'), 'click');
+          if (inputValue === 'True') {
+            inputValue = true;
+          } else if (inputValue === 'False') {
+            inputValue = false;
+          }
+          if (typeof inputValue === 'string') {
+            if (quad.left != 'string') {
+              add_p_element_to_output_area('Error: Trying to read a string into a non-string variable');
+              i = compiled_data.code_quads.length - 1;
+              loading = false;
+              inputDisabled = true;
+              inputValue = '';
+              break;
+            }
+            inputValue = inputValue.replace(/"/g, '');
+          } else if (typeof inputValue === 'number' && !Number.isInteger(inputValue)) {
+            if (quad.left != 'float') {
+              add_p_element_to_output_area('Error: Trying to read a float into a non-float variable');
+              i = compiled_data.code_quads.length - 1;
+              loading = false;
+              inputDisabled = true;
+              inputValue = '';
+              break;
+            }
+            inputValue = parseFloat(inputValue);
+          } else if (typeof inputValue === 'number' && Number.isInteger(inputValue)) {
+            if (quad.left != 'int') {
+              add_p_element_to_output_area('Error: Trying to read an int into a non-int variable');
+              i = compiled_data.code_quads.length - 1;
+              loading = false;
+              inputDisabled = true;
+              inputValue = '';
+              break;
+            }
+            inputValue = parseInt(inputValue);
+          } else if (typeof inputValue === 'boolean') {
+            if (quad.left != 'bool') {
+              add_p_element_to_output_area('Error: Trying to read a bool into a non-bool variable');
+              i = compiled_data.code_quadsasd.length - 1;
+              loading = false;
+              inputDisabled = true;
+              inputValue = '';
+              break;
+            }
+            inputValue = inputValue === 'True' ? true : false;
+          }
+          set_value_to_address(quad.target, inputValue);
+          loading = false;
+          inputDisabled = true;
+          inputValue = '';
           i++;
           break;
         case 'end':
@@ -359,8 +455,7 @@
   // Set value to address
   function set_value_to_address(address, value) {
     if (compiled_data.virtual_var_list.includes(address)) {
-      set_value_global(get_value_from_address(address), value);
-      return;
+      address = get_value_from_address(address);
     }
     // Get scope ref where address is defined
     let aux_ref = get_scope_ref_from_address(address);
@@ -376,11 +471,6 @@
   // Set value to global function address
   function set_value_global(address, value) {
     execution_state.scopes[0].scope_memory[address] = value;
-  }
-
-  // Get global value from address
-  function get_value_global(address) {
-    return execution_state.scopes[0].scope_memory[address];
   }
 
   // Get value from address
@@ -404,7 +494,7 @@
   }
 </script>
 
-<div>
+<div class="flex flex-col">
   <label for="output" class="block text-sm font-medium"> Output </label>
   <div class="bg-gray-50 h-[70vh] mt-1 rounded-md overflow-y-auto relative" name="output">
     {#if error}
@@ -412,9 +502,22 @@
     {/if}
     {#if loading}
       <Loading />
+    {:else}
+      {#each execution_actions as action (action.id)}
+        <svelte:component this={action.component} message={action.message} />
+      {/each}
     {/if}
-    {#each execution_actions as action (action.id)}
-      <svelte:component this={action.component} message={action.message} />
-    {/each}
+  </div>
+  <div class="mt-2 flex gap-1">
+    <input on:input={handleInput} value={inputValue} disabled={inputDisabled} type={inputType} class="w-3/4" />
+    <button
+      id="readValue"
+      type="button"
+      on:click={() => {}}
+      disabled={inputDisabled}
+      class="w-1/4 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+    >
+      Read
+    </button>
   </div>
 </div>

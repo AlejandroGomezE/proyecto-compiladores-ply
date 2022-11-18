@@ -29,6 +29,7 @@ reserved = {
     'absolute': 'ABSOLUTE',
     'function': 'FUNCTION',
     'return': 'RETURN',
+    'read': 'READ',
 }
 
 extras = ['ID', 'INT', 'FLOAT', 'STRING']
@@ -1085,6 +1086,21 @@ def p_print_value(p):
     pass
 
 
+def p_read_value(p):
+    # Create read quadruple
+    'read_value : '
+    value_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+    
+    # Debug Quad list
+    quadruple_name_list.append(Quadruple(Operations.READ, value_type.value, target=value_name))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.READ, value_type.value, target=get_addr(value_name, value_type)))
+
+    pass
+
+
 def p_end_program(p):
     'end_program : '
     quadruple_name_list.append(Quadruple(Operations.END))
@@ -1141,6 +1157,7 @@ def p_statement(p):
     | while_loop
     | absolute_call
     | return
+    | read
     | print'''
     pass
 
@@ -1353,6 +1370,13 @@ def p_print_many(p):
     '''
     print_many : mega_expression print_value
     | mega_expression print_value COMMA print_many
+    '''
+    pass
+
+
+def p_read(p):
+    '''
+    read : READ LPARENT reference read_value RPARENT SEMICOLON
     '''
     pass
 

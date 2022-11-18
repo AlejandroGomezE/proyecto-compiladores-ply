@@ -1,0 +1,8 @@
+program programa;
+
+main(){
+  var int i = 0;
+  var int a[10];
+  read(a[2]);
+  print(a[2]);
+};
