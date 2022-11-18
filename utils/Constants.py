@@ -42,6 +42,7 @@ class Operations(Enum):
     SUBSTR = 'substr'
     TOLOWER = 'toLower'
     TOUPPER = 'toUpper'
+    AVG = 'avg'
 
 
 sem_cube = defaultdict(

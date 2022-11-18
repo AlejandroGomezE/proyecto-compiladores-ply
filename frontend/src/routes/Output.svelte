@@ -381,6 +381,17 @@
           set_value_to_address(quad.target, value.toUpperCase());
           i++;
           break;
+        case 'avg':
+          let sum = 0;
+          let count = 0;
+          for (let j = quad.left; j <= quad.right; j++) {
+            sum += get_value_from_address(j);
+            count++;
+          }
+          
+          set_value_to_address(quad.target, sum / count);
+          i++;
+          break;
         case 'print':
           if (compiled_data.virtual_var_list.includes(quad.target)) {
             value = get_value_from_address(get_value_from_address(quad.target));

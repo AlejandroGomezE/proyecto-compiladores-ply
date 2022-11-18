@@ -35,6 +35,7 @@ reserved = {
     'substr': 'SUBSTR',
     'toLower': 'TOLOWER',
     'toUpper': 'TOUPPER',
+    'avg': 'AVG',
 }
 
 extras = ['ID', 'INT', 'FLOAT', 'STRING']
@@ -1225,6 +1226,54 @@ def p_check_to_upper_argument_value(p):
     pass
 
 
+def p_check_avg_argument_value(p):
+    'check_avg_argument_value : '
+    array_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    d1 = -1
+    array_start_address = -1
+
+    # Ger scope ref of array
+    aux_scope_ref = current_scope_ref
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: avg() function only accepts arrays.')
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.AVG, array_name, array_start_address + d1 - 1, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.AVG, array_start_address, array_start_address + d1 - 1, target=result_addr))
+
+    pass
+
+
 def p_print_value(p):
     # Create print quadruple
     'print_value : '
@@ -1455,6 +1504,7 @@ def p_value(p):
     | substr_call_value
     | to_lower_call_value
     | to_upper_call_value
+    | avg_call_value
     '''
     pass
 
@@ -1540,6 +1590,13 @@ def p_to_upper_call_value(p):
 def p_substr_call_value(p):
     '''
     substr_call_value : SUBSTR LPARENT reference COMMA mega_expression COMMA mega_expression substr_quad RPARENT
+    '''
+    pass
+
+
+def p_avg_call_value(p):
+    '''
+    avg_call_value : AVG LPARENT ID add_id_type_to_stack check_avg_argument_value RPARENT
     '''
     pass
 
