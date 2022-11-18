@@ -27,9 +27,14 @@ reserved = {
     'while': 'WHILE',
     'main': 'MAIN',
     'absolute': 'ABSOLUTE',
+    'sqrt': 'SQRT',
+    'trunc': 'TRUNC',
     'function': 'FUNCTION',
     'return': 'RETURN',
     'read': 'READ',
+    'substr': 'SUBSTR',
+    'toLower': 'TOLOWER',
+    'toUpper': 'TOUPPER',
 }
 
 extras = ['ID', 'INT', 'FLOAT', 'STRING']
@@ -1028,22 +1033,6 @@ def p_main_quad(p):
     pass
 
 
-def p_check_absolute_argument_call(p):
-    'check_absolute_argument_call : '
-    value_name = PilaOperandos.pop()
-    value_type = PTypes.pop()
-    if value_type != Types.FLOAT_TYPE and value_type != Types.INT_TYPE:
-        raise Exception(
-            'Semantic error: absolute() function only accepts floats or ints.')
-    # Debug Quad list
-    quadruple_name_list.append(
-        Quadruple(Operations.ABSOLUTE, value_name))
-    # Addr Quad list
-    quadruple_address_list.append(
-        Quadruple(Operations.ABSOLUTE, get_addr(value_name, value_type)))
-    pass
-
-
 def p_check_absolute_argument_value(p):
     'check_absolute_argument_value : '
     value_name = PilaOperandos.pop()
@@ -1073,6 +1062,169 @@ def p_check_absolute_argument_value(p):
     pass
 
 
+def p_check_trunc_argument_value(p):
+    'check_trunc_argument_value : '
+    value_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+    if value_type != Types.FLOAT_TYPE and value_type != Types.INT_TYPE:
+        raise Exception(
+            'Semantic error: trunc() function only accepts floats or ints.')
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.TRUNC, value_name, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.TRUNC, get_addr(value_name, value_type), target=result_addr))
+    pass
+
+
+def p_check_sqrt_argument_value(p):
+    'check_sqrt_argument_value : '
+    value_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+    if value_type != Types.FLOAT_TYPE and value_type != Types.INT_TYPE:
+        raise Exception(
+            'Semantic error: sqrt() function only accepts floats or ints.')
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.SQRT, value_name, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.SQRT, get_addr(value_name, value_type), target=result_addr))
+    pass
+
+
+def p_substr_quad(p):
+    'substr_quad : '
+    # End index parameter
+    end_index = PilaOperandos.pop()
+    end_index_type = PTypes.pop()
+    if end_index_type != Types.INT_TYPE:
+        raise Exception(
+            'Semantic error: substr() last parameter is not an int.')
+
+    start_index = PilaOperandos.pop()
+    start_index_type = PTypes.pop()
+    if start_index_type != Types.INT_TYPE:
+        raise Exception(
+            'Semantic error: substr() second parameter is not an int.')
+
+    string_x = PilaOperandos.pop()
+    string_x_type = PTypes.pop()
+    if string_x_type != Types.STRING_TYPE:
+        raise Exception(
+            'Semantic error: substr() first parameter is not a string.')
+
+     # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, string_x_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(string_x_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, string_x_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.SUBSTR, string_x, [get_addr(start_index, string_x_type), get_addr(end_index, string_x_type)], target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.SUBSTR, get_addr(string_x, string_x_type), [get_addr(start_index, string_x_type), get_addr(end_index, string_x_type)], target=result_addr))
+
+    pass
+
+
+def p_check_to_lower_argument_value(p):
+    'check_to_lower_argument_value : '
+    value_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    if value_type != Types.STRING_TYPE:
+        raise Exception(
+            'Semantic error: toLower() function only accepts strings.')
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.TOLOWER, value_name, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.TOLOWER, get_addr(value_name, value_type), target=result_addr))
+
+    pass
+
+
+def p_check_to_upper_argument_value(p):
+    'check_to_upper_argument_value : '
+    value_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    if value_type != Types.STRING_TYPE:
+        raise Exception(
+            'Semantic error: toUpper() function only accepts strings.')
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.TOUPPER, value_name, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.TOUPPER, get_addr(value_name, value_type), target=result_addr))
+
+    pass
+
+
 def p_print_value(p):
     # Create print quadruple
     'print_value : '
@@ -1091,9 +1243,10 @@ def p_read_value(p):
     'read_value : '
     value_name = PilaOperandos.pop()
     value_type = PTypes.pop()
-    
+
     # Debug Quad list
-    quadruple_name_list.append(Quadruple(Operations.READ, value_type.value, target=value_name))
+    quadruple_name_list.append(
+        Quadruple(Operations.READ, value_type.value, target=value_name))
     # Addr Quad list
     quadruple_address_list.append(
         Quadruple(Operations.READ, value_type.value, target=get_addr(value_name, value_type)))
@@ -1155,7 +1308,6 @@ def p_statement(p):
     | function_call
     | if_condition
     | while_loop
-    | absolute_call
     | return
     | read
     | print'''
@@ -1298,6 +1450,11 @@ def p_value(p):
     | reference
     | function_call_value
     | absolute_call_value
+    | sqrt_call_value
+    | trunc_call_value
+    | substr_call_value
+    | to_lower_call_value
+    | to_upper_call_value
     '''
     pass
 
@@ -1320,7 +1477,7 @@ def p_reference(p):
 
 
 def p_array_reference(p):
-    ''' array_reference : ID array_name_reference LBRACKET add_separator expression RBRACKET remove_separator array_reference_value'''
+    ''' array_reference : ID array_name_reference LBRACKET add_separator mega_expression RBRACKET remove_separator array_reference_value'''
 
 
 def p_if_condition(p):
@@ -1345,16 +1502,44 @@ def p_while_loop(p):
     pass
 
 
-def p_absolute_call(p):
+def p_absolute_call_value(p):
     '''
-    absolute_call : ABSOLUTE LPARENT mega_expression check_absolute_argument_call RPARENT SEMICOLON
+    absolute_call_value : ABSOLUTE LPARENT mega_expression check_absolute_argument_value RPARENT
     '''
     pass
 
 
-def p_absolute_call_value(p):
+def p_sqrt_call_value(p):
     '''
-    absolute_call_value : ABSOLUTE LPARENT mega_expression check_absolute_argument_value RPARENT
+    sqrt_call_value : SQRT LPARENT mega_expression check_sqrt_argument_value RPARENT
+    '''
+    pass
+
+
+def p_trunc_call_value(p):
+    '''
+    trunc_call_value : TRUNC LPARENT mega_expression check_trunc_argument_value RPARENT
+    '''
+    pass
+
+
+def p_to_lower_call_value(p):
+    '''
+    to_lower_call_value : TOLOWER LPARENT mega_expression check_to_lower_argument_value RPARENT
+    '''
+    pass
+
+
+def p_to_upper_call_value(p):
+    '''
+    to_upper_call_value : TOUPPER LPARENT mega_expression check_to_upper_argument_value RPARENT
+    '''
+    pass
+
+
+def p_substr_call_value(p):
+    '''
+    substr_call_value : SUBSTR LPARENT reference COMMA mega_expression COMMA mega_expression substr_quad RPARENT
     '''
     pass
 

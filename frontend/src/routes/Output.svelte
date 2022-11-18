@@ -321,11 +321,64 @@
           } else {
             value = get_value_from_address(quad.left);
           }
-          if (quad.target) {
-            set_value_to_address(quad.target, Math.abs(value));
+          set_value_to_address(quad.target, Math.abs(value));
+          i++;
+          break;
+        case 'trunc':
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            value = get_value_from_address(get_value_from_address(quad.left));
           } else {
-            add_p_element_to_output_area(Math.abs(value));
+            value = get_value_from_address(quad.left);
           }
+          set_value_to_address(quad.target, Math.trunc(value));
+          i++;
+          break;
+        case 'sqrt':
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            value = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            value = get_value_from_address(quad.left);
+          }
+          set_value_to_address(quad.target, Math.sqrt(value));
+          i++;
+          break;
+        case 'substr':
+          // Check string length is within upper and lower bounds
+          let lower;
+
+          if (compiled_data.virtual_var_list.includes(quad.right[0])) {
+            lower = get_value_from_address(get_value_from_address(quad.right[0]));
+          } else {
+            lower = get_value_from_address(quad.right[0]);
+          }
+          let upper;
+          if (compiled_data.virtual_var_list.includes(quad.right[1])) {
+            upper = get_value_from_address(get_value_from_address(quad.right[1]));
+          } else {
+            upper = get_value_from_address(quad.right[1]);
+          }
+
+          let string = get_value_from_address(quad.left);
+
+          if (lower < 0 || upper > string.length || lower > upper) {
+            add_p_element_to_output_area('Error: Trying to access substring out of bounds');
+            i = compiled_data.code_quads.length - 1;
+            loading = false;
+            inputDisabled = true;
+            inputValue = '';
+            break;
+          }
+          set_value_to_address(quad.target, string.substring(lower, upper));
+          i++;
+          break;
+        case 'toLower':
+          value = get_value_from_address(quad.left);
+          set_value_to_address(quad.target, value.toLowerCase());
+          i++;
+          break;
+        case 'toUpper':
+          value = get_value_from_address(quad.left);
+          set_value_to_address(quad.target, value.toUpperCase());
           i++;
           break;
         case 'print':
@@ -334,7 +387,7 @@
           } else {
             value = get_value_from_address(quad.target);
           }
-          if (!value) {
+          if (value == undefined) {
             add_p_element_to_output_area('Error: Trying to print uninitialized value');
             i = compiled_data.code_quads.length - 1;
             loading = false;

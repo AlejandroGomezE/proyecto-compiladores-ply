@@ -1,0 +1,9 @@
+program programa;
+
+main(){
+  var int i = 0;
+  var int a[10];
+  a[1] = 0;
+  var string p = "HELLO World";
+  print(toLower(substr(p, a[1], 5) + " " + i) + i);
+};

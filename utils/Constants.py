@@ -37,6 +37,11 @@ class Operations(Enum):
     MAIN = 'main'
     ABSOLUTE = 'absolute'
     READ = 'read'
+    SQRT = 'sqrt'
+    TRUNC = 'trunc'
+    SUBSTR = 'substr'
+    TOLOWER = 'toLower'
+    TOUPPER = 'toUpper'
 
 
 sem_cube = defaultdict(
@@ -86,4 +91,6 @@ sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.EQUALEQUAL] = Types.BOOL_T
 sem_cube[Types.BOOL_TYPE][Types.BOOL_TYPE][Operations.NOTEQUAL] = Types.BOOL_TYPE
 
 sem_cube[Types.STRING_TYPE][Types.STRING_TYPE][Operations.PLUS] = Types.STRING_TYPE
+sem_cube[Types.INT_TYPE][Types.STRING_TYPE][Operations.PLUS] = sem_cube[Types.STRING_TYPE][Types.INT_TYPE][Operations.PLUS] = Types.STRING_TYPE
+sem_cube[Types.FLOAT_TYPE][Types.STRING_TYPE][Operations.PLUS] = sem_cube[Types.STRING_TYPE][Types.FLOAT_TYPE][Operations.PLUS] = Types.STRING_TYPE
 sem_cube[Types.STRING_TYPE][Types.STRING_TYPE][Operations.EQUAL] = Types.STRING_TYPE
