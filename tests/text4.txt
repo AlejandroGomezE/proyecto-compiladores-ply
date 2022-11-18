@@ -1,11 +1,11 @@
 program programa;
 
-function hola<int>(int a, int b) {
-    return a + b;
-};
-
 main(){
-  print(-1);
+  var int i = 0;
   var int a[10];
-  a[2] = 20;
+  while(i < 10){
+	a[i] = i * 2;	
+    i = i + 1;
+  }
+  print(a[1], a[2], a[3]);
 };

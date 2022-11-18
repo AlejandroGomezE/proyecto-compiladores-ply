@@ -1166,7 +1166,7 @@ def p_function_type(p):
 def p_params(p):
     '''params : param
     | param COMMA params
-    | empty'''
+    '''
     pass
 
 
@@ -1196,7 +1196,6 @@ def p_arg_list(p):
     '''
     arg_list : arg
     | arg COMMA increment_argument_counter arg_list
-    | empty
     '''
     pass
 
@@ -1345,7 +1344,15 @@ def p_absolute_call_value(p):
 
 def p_print(p):
     '''
-    print : PRINT LPARENT mega_expression print_value RPARENT SEMICOLON
+    print : PRINT LPARENT print_many RPARENT SEMICOLON
+    '''
+    pass
+
+
+def p_print_many(p):
+    '''
+    print_many : mega_expression print_value
+    | mega_expression print_value COMMA print_many
     '''
     pass
 
