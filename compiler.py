@@ -38,6 +38,10 @@ reserved = {
     'avg': 'AVG',
     'sort': 'SORT',
     'find': 'FIND',
+    'min': 'MIN',
+    'max': 'MAX',
+    'sum': 'SUM',
+    'len': 'LEN',
 }
 
 extras = ['ID', 'INT', 'FLOAT', 'STRING']
@@ -1269,6 +1273,210 @@ def p_check_avg_argument_value(p):
     pass
 
 
+def p_check_sum_argument_value(p):
+    'check_sum_argument_value : '
+    array_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    if value_type != Types.INT_TYPE and value_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: sum() function only accepts arrays of ints or floats.')
+
+    d1 = -1
+    array_start_address = -1
+
+    # Ger scope ref of array
+    aux_scope_ref = current_scope_ref
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: sum() function only accepts arrays.')
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.SUM, array_name, array_start_address + d1 - 1, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.SUM, array_start_address, array_start_address + d1 - 1, target=result_addr))
+
+    pass
+
+
+def p_check_max_argument_value(p):
+    'check_max_argument_value : '
+    array_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    if value_type != Types.INT_TYPE and value_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: max() function only accepts arrays of ints or floats.')
+
+    d1 = -1
+    array_start_address = -1
+
+    # Ger scope ref of array
+    aux_scope_ref = current_scope_ref
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: max() function only accepts arrays.')
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.MAX, array_name, array_start_address + d1 - 1, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.MAX, array_start_address, array_start_address + d1 - 1, target=result_addr))
+
+    pass
+
+
+def p_check_min_argument_value(p):
+    'check_min_argument_value : '
+    array_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    if value_type != Types.INT_TYPE and value_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: min() function only accepts arrays of ints or floats.')
+
+    d1 = -1
+    array_start_address = -1
+
+    # Ger scope ref of array
+    aux_scope_ref = current_scope_ref
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: min() function only accepts arrays.')
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.MIN, array_name, array_start_address + d1 - 1, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.MIN, array_start_address, array_start_address + d1 - 1, target=result_addr))
+
+    pass
+
+
+def p_check_len_argument_value(p):
+    'check_len_argument_value : '
+    array_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    d1 = -1
+    array_start_address = -1
+
+    # Ger scope ref of array
+    aux_scope_ref = current_scope_ref
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: len() function only accepts arrays.')
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, value_type)
+
+    PilaOperandos.append(result)
+    PTypes.append(value_type)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, value_type, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.LEN, array_name, array_start_address + d1 - 1, target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.LEN, array_start_address, array_start_address + d1 - 1, target=result_addr))
+
+    pass
+
+
 def p_check_sort_argument_value(p):
     'check_sort_argument_value : '
     sort_direction = POper.pop().value
@@ -1602,6 +1810,10 @@ def p_value(p):
     | to_upper_call_value
     | avg_call_value
     | find_array_value
+    | max_array_value
+    | min_array_value
+    | sum_array_value
+    | len_array_value
     '''
     pass
 
@@ -1709,6 +1921,34 @@ def p_sort_array(p):
 def p_find_array_value(p):
     '''
     find_array_value : FIND LPARENT ID add_id_type_to_stack COMMA mega_expression check_find_argument_value RPARENT
+    '''
+    pass
+
+
+def p_max_array_value(p):
+    '''
+    max_array_value : MAX LPARENT ID add_id_type_to_stack check_max_argument_value RPARENT
+    '''
+    pass
+
+
+def p_min_array_value(p):
+    '''
+    min_array_value : MIN LPARENT ID add_id_type_to_stack check_min_argument_value RPARENT
+    '''
+    pass
+
+
+def p_sum_array_value(p):
+    '''
+    sum_array_value : SUM LPARENT ID add_id_type_to_stack check_sum_argument_value RPARENT
+    '''
+    pass
+
+
+def p_len_array_value(p):
+    '''
+    len_array_value : LEN LPARENT ID add_id_type_to_stack check_len_argument_value RPARENT
     '''
     pass
 

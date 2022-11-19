@@ -45,6 +45,10 @@ class Operations(Enum):
     AVG = 'avg'
     SORT = 'sort'
     FIND = 'find'
+    MIN = 'min'
+    MAX = 'max'
+    SUM = 'sum'
+    LEN = 'len'
 
 
 sem_cube = defaultdict(

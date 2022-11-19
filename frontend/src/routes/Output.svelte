@@ -435,6 +435,42 @@
           add_p_element_to_output_area(value.toString());
           i++;
           break;
+        case 'sum':
+          let sum1 = 0;
+          for (let j = quad.left; j <= quad.right; j++) {
+            sum1 += get_value_from_address(j);
+          }
+          set_value_to_address(quad.target, sum1);
+          i++;
+          break;
+        case 'max':
+          let max = get_value_from_address(quad.left);
+          for (let j = quad.left + 1; j <= quad.right; j++) {
+            if (get_value_from_address(j) > max) {
+              max = get_value_from_address(j);
+            }
+          }
+          set_value_to_address(quad.target, max);
+          i++;
+          break;
+        case 'min':
+          let min = get_value_from_address(quad.left);
+          for (let j = quad.left + 1; j <= quad.right; j++) {
+            if (get_value_from_address(j) < min) {
+              min = get_value_from_address(j);
+            }
+          }
+          set_value_to_address(quad.target, min);
+          i++;
+          break;
+        case 'len':
+          let length = 0;
+          for (let j = quad.left; j <= quad.right; j++) {
+            length++;
+          }
+          set_value_to_address(quad.target, length);
+          i++;
+          break;
         case 'read':
           inputDisabled = false;
           if (quad.left == 'int' || quad.left == 'float') {
@@ -599,7 +635,13 @@
     {/if}
   </div>
   <div class="mt-2 flex gap-1">
-    <input on:input={handleInput} value={inputValue} disabled={inputDisabled} type={inputType} class="w-3/4" />
+    <input
+      on:input={handleInput}
+      value={inputValue}
+      disabled={inputDisabled}
+      type={inputType}
+      class="w-3/4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+    />
     <button
       id="readValue"
       type="button"

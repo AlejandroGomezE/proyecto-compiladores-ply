@@ -8,4 +8,8 @@ main(){
   a[3] = 4;
   a[4] = 5;
   print(avg(a));
+  print(max(a));
+  print(min(a));
+  print(sum(a));
+  print(len(a));
 }; 
