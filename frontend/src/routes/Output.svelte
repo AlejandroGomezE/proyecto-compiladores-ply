@@ -78,6 +78,7 @@
       let assign_value;
       let condition;
       let value;
+      let array = [];
 
       switch (quad.op_code) {
         case 'start':
@@ -388,8 +389,33 @@
             sum += get_value_from_address(j);
             count++;
           }
-          
+
           set_value_to_address(quad.target, sum / count);
+          i++;
+          break;
+        case 'sort':
+          for (let j = quad.left; j <= quad.right; j++) {
+            array.push(get_value_from_address(j));
+          }
+          if (quad.target == '-') {
+            array.sort((a, b) => a - b);
+          } else {
+            array.sort((a, b) => b - a);
+          }
+          let x = 0;
+          for (let j = quad.left; j <= quad.right; j++) {
+            set_value_to_address(j, array[x]);
+            x++;
+          }
+          i++;
+          break;
+        case 'find':
+          let value_to_find = get_value_from_address(quad.right[1]);
+          for (let j = quad.left; j <= quad.right[0]; j++) {
+            array.push(get_value_from_address(j));
+          }
+          let index = array.indexOf(value_to_find);
+          set_value_to_address(quad.target, index);
           i++;
           break;
         case 'print':

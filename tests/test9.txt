@@ -1,0 +1,20 @@
+program programa;
+
+main(){
+  var int a[5];
+  var int i = 0;
+  while(i < 5){
+    a[i] = i;
+    print(a[i]);
+    i = i + 1;
+  }
+  i = 0;
+  print("-----------------------");
+  sort(a, >);
+  while(i < 5){
+    print(a[i]);
+    i = i + 1;
+  }
+  print("-----------------------");
+  print(find(a, 2));
+}; 

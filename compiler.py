@@ -36,6 +36,8 @@ reserved = {
     'toLower': 'TOLOWER',
     'toUpper': 'TOUPPER',
     'avg': 'AVG',
+    'sort': 'SORT',
+    'find': 'FIND',
 }
 
 extras = ['ID', 'INT', 'FLOAT', 'STRING']
@@ -129,17 +131,6 @@ operations_map = {
     '!=': Operations.NOTEQUAL,
     '<=': Operations.LESSTHANOREQUAL,
     '>=': Operations.GREATERTHANOREQUAL,
-    'goto': Operations.GOTO,
-    'gotoF': Operations.GOTOF,
-    'gosub': Operations.GOSUB,
-    'era': Operations.ERA,
-    'ver': Operations.VER,
-    'endFunc': Operations.ENDFUNC,
-    'start': Operations.START,
-    'end': Operations.END,
-    'param': Operations.PARAM,
-    'return': Operations.RETURN,
-    'absolute': Operations.ABSOLUTE,
 }
 
 types_map = {
@@ -1231,6 +1222,10 @@ def p_check_avg_argument_value(p):
     array_name = PilaOperandos.pop()
     value_type = PTypes.pop()
 
+    if value_type != Types.INT_TYPE and value_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: avg() function only accepts arrays of ints or floats.')
+
     d1 = -1
     array_start_address = -1
 
@@ -1270,6 +1265,106 @@ def p_check_avg_argument_value(p):
     # Addr Quad list
     quadruple_address_list.append(
         Quadruple(Operations.AVG, array_start_address, array_start_address + d1 - 1, target=result_addr))
+
+    pass
+
+
+def p_check_sort_argument_value(p):
+    'check_sort_argument_value : '
+    sort_direction = POper.pop().value
+    array_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    if value_type != Types.INT_TYPE and value_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: sort() function only accepts arrays of ints or floats.')
+
+    d1 = -1
+    array_start_address = -1
+
+    # Ger scope ref of array
+    aux_scope_ref = current_scope_ref
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: sort() function only accepts arrays.')
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.SORT, array_name, array_start_address + d1 - 1, target=sort_direction))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.SORT, array_start_address, array_start_address + d1 - 1, target=sort_direction))
+
+    pass
+
+
+def p_check_find_argument_value(p):
+    'check_find_argument_value : '
+    value_to_find = PilaOperandos.pop()
+    value_to_find_type = PTypes.pop()
+
+    array_name = PilaOperandos.pop()
+    value_type = PTypes.pop()
+
+    if value_type != Types.INT_TYPE and value_type != Types.FLOAT_TYPE:
+        raise Exception(
+            'Semantic error: find() function only accepts arrays of ints or floats.')
+
+    if value_to_find_type != value_type:
+        raise Exception(
+            'Semantic error: find() function only accepts the same type of array and item.')
+
+    d1 = -1
+    array_start_address = -1
+
+    # Ger scope ref of array
+    aux_scope_ref = current_scope_ref
+    while(aux_scope_ref > -1):
+        scope_vars = funcsTable.dict[aux_scope_ref].vars
+        if array_name in scope_vars:
+            # get d1
+            d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: find() function only accepts arrays.')
+            # get initial addr
+            array_start_address = scope_vars[array_name]['addr']
+            break
+        if aux_scope_ref == 0:
+            raise Exception(
+                'Semantic error: Variable array "%s" does not exist.' % array_name)
+        aux_scope_ref = funcsTable.dict[aux_scope_ref].parent_ref
+
+    # Temp variable
+    result = create_temp_var()
+    # Add to addr quad
+    result_addr = get_addr(result, Types.INT_TYPE)
+
+    PilaOperandos.append(result)
+    PTypes.append(Types.INT_TYPE)
+
+    # Append temp variable to scope
+    funcsTable.dict[current_scope_ref].add_variable(
+        result, Types.INT_TYPE, result_addr)
+
+    # Debug Quad list
+    quadruple_name_list.append(
+        Quadruple(Operations.FIND, array_name, [array_start_address + d1 - 1, value_to_find], target=result))
+    # Addr Quad list
+    quadruple_address_list.append(
+        Quadruple(Operations.FIND, array_start_address, [array_start_address + d1 - 1, get_addr(value_to_find, value_to_find_type)], target=result_addr))
 
     pass
 
@@ -1359,6 +1454,7 @@ def p_statement(p):
     | while_loop
     | return
     | read
+    | sort_array
     | print'''
     pass
 
@@ -1505,6 +1601,7 @@ def p_value(p):
     | to_lower_call_value
     | to_upper_call_value
     | avg_call_value
+    | find_array_value
     '''
     pass
 
@@ -1597,6 +1694,21 @@ def p_substr_call_value(p):
 def p_avg_call_value(p):
     '''
     avg_call_value : AVG LPARENT ID add_id_type_to_stack check_avg_argument_value RPARENT
+    '''
+    pass
+
+
+def p_sort_array(p):
+    '''
+    sort_array : SORT LPARENT ID add_id_type_to_stack COMMA LESSTHAN add_operator_to_stack check_sort_argument_value RPARENT SEMICOLON
+    | SORT LPARENT ID add_id_type_to_stack COMMA GREATERTHAN add_operator_to_stack check_sort_argument_value RPARENT SEMICOLON
+    '''
+    pass
+
+
+def p_find_array_value(p):
+    '''
+    find_array_value : FIND LPARENT ID add_id_type_to_stack COMMA mega_expression check_find_argument_value RPARENT
     '''
     pass
 

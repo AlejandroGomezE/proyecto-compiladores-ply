@@ -43,6 +43,8 @@ class Operations(Enum):
     TOLOWER = 'toLower'
     TOUPPER = 'toUpper'
     AVG = 'avg'
+    SORT = 'sort'
+    FIND = 'find'
 
 
 sem_cube = defaultdict(
