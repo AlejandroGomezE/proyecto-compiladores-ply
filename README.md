@@ -95,6 +95,7 @@ var string m = "Hello";
 ## Functions
 
 Declare before main function, and after global variables. Acceptable return types:
+
 **_Int_**
 
 **_Float_**
