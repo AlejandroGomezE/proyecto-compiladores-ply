@@ -7,5 +7,5 @@ main(){
   var string p = "HELLO World";
   var string s; 
   read(s);
-  print(toLower(substr(p, a[1], 5) + " " + i) + s);
+  print(toLower(substr(p, a[1], 5) + " " + i) + " " + s);
 };

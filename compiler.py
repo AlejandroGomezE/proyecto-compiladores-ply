@@ -672,15 +672,16 @@ def p_validate_return(p):
         raise Exception('Semantic error: Returned value type does not match function return type in function "%s"' %
                         function_name)
 
-    return_var_name = f"${function_name}_return_value"
+    if(return_value != 1):
+        return_var_name = f"${function_name}_return_value"
 
-    # Add return quad
-    quadruple_name_list.append(
-        Quadruple(Operations.RETURN, left=get_addr(return_value, return_type), target=return_var_name))
+        # Add return quad
+        quadruple_name_list.append(
+            Quadruple(Operations.RETURN, left=get_addr(return_value, return_type), target=return_var_name))
 
-    # Add return quad
-    quadruple_address_list.append(Quadruple(Operations.RETURN, left=get_addr(return_value, return_type),
-                                            target=return_var_name))
+        # Add return quad
+        quadruple_address_list.append(Quadruple(Operations.RETURN, left=get_addr(return_value, return_type),
+                                                target=return_var_name))
     global return_counter
     return_counter += 1
     pass
@@ -876,6 +877,9 @@ def p_array_reference_value(p):
         if array_name in scope_vars:
             # get d1
             d1 = scope_vars[array_name]['d1']
+            if d1 == None:
+                raise Exception(
+                    'Semantic error: avg() function only accepts arrays.')
             # get initial addr
             array_start_address = scope_vars[array_name]['addr']
             # get array type

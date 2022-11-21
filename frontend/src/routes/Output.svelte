@@ -79,6 +79,7 @@
       let condition;
       let value;
       let array = [];
+      let s1;
 
       switch (quad.op_code) {
         case 'start':
@@ -267,6 +268,7 @@
           break;
         case 'era':
           add_scope_to_execution_state(current_scope_ref);
+          current_scope_ref--;
           i++;
           break;
         case 'param':
@@ -275,11 +277,12 @@
           } else {
             value = get_value_from_address(quad.left);
           }
-          set_value_to_address(quad.target, value);
+          set_value_to_child_address(quad.target, value);
           i++;
           break;
         case 'gosub':
           return_quad_pointer.push(i + 1);
+          current_scope_ref++;
           i = quad.target;
           break;
         case 'return':
@@ -297,7 +300,7 @@
           i = return_quad_pointer.pop();
           break;
         case 'ver':
-          let s1 = get_value_from_address(quad.target);
+          s1 = get_value_from_address(quad.target);
           if (!Number.isInteger(s1)) {
             add_p_element_to_output_area('Error: Trying to access array with non-integer index');
             i = compiled_data.quad_list.length - 1;
@@ -312,8 +315,8 @@
           i++;
           break;
         case '+v':
-          let k = get_value_from_address(quad.right);
-          set_value_global(quad.target, quad.left + k);
+          s1 = get_value_from_address(quad.right);
+          set_value_global(quad.target, quad.left + s1);
           i++;
           break;
         case 'absolute':
@@ -592,6 +595,17 @@
       // Create new {address: value} pair in scope layer of current scope
       execution_state.scopes[current_scope_ref].scope_memory[address] = value;
     }
+  }
+
+  // Set value to child address
+  function set_value_to_child_address(address, value) {
+    if (compiled_data.virtual_var_list.includes(address)) {
+      address = get_value_from_address(address);
+    }
+    // Get scope ref where address is defined
+    current_scope_ref++;
+    execution_state.scopes[current_scope_ref].scope_memory[address] = value;
+    current_scope_ref--;
   }
 
   // Set value to global function address

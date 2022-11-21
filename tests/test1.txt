@@ -5,6 +5,7 @@ p = p + 8.0;
 
 function hola<float>(float a, float b) {
     print("hola");
+    return a + b;
 };
 
 main(){

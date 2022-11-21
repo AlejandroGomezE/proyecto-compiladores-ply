@@ -1,0 +1,21 @@
+program programa;
+
+function factorial<int>(int x) {
+    if(x > 1){
+        return x * factorial(x - 1);
+    }
+    return 1;
+};
+
+main(){
+  var int a;
+  var int result = 1;
+  read(a);
+  var int i = 1;
+  while(i <= a){
+    result = result * i;
+    i = i + 1;
+  }
+  print(result);
+  print(factorial(a));
+};
