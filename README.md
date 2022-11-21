@@ -31,7 +31,7 @@ Proyecto de compiladores.
    ```
 3. Run the project
    ```bash
-   npm dev
+   npm run dev
    ```
 4. Open the browser and go to http://localhost:5173
 
