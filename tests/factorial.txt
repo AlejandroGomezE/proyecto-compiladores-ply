@@ -12,10 +12,12 @@ main(){
   var int result = 1;
   read(a);
   var int i = 1;
+  print("Ciclico-------------------------------------------");
   while(i <= a){
     result = result * i;
     i = i + 1;
   }
   print(result);
+  print("Recursivo---------------------------------------");
   print(factorial(a));
 };

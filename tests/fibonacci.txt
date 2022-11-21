@@ -1,0 +1,37 @@
+program programa;
+
+function fibonacci<int>(int n, int a, int b) {
+    if (n == 0) {
+        return a;
+    }
+    if (n == 1) {
+        return b;
+    }
+    return fibonacci(n - 1, b, a + b);
+};
+
+main(){
+  var int a = 0;
+  var int b = 1;
+  var int c;
+  var int n;
+  read(n);
+  print("Ciclico-------------------------------------------");
+  if(n == 0){
+    print(a);
+  }
+  if(n >= 1){
+    print(a);
+    print(b);
+  }
+  var int i = 2;
+  while(i <= n){
+    c = a + b;
+    a = b;
+    b = c;
+    print(b);
+    i = i + 1;
+  }
+  print("Recursivo---------------------------------------");
+  print(fibonacci(n, 0, 1));
+};

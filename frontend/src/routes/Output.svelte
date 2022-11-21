@@ -23,7 +23,7 @@
   let scopes_ref_execution_stack = [];
 
   //Execution State management
-  let execution_state = {};
+  let scopes = {};
 
   //Current Scope Ref in State Management
   let current_scope_ref = -1;
@@ -32,7 +32,7 @@
   let scopes_counter = 0;
 
   //Return quad
-  let return_quad_pointer = [];
+  let return_quad_pointer_stack = [];
 
   const handleInput = (e) => {
     // in here, you can switch on type and implement
@@ -62,13 +62,11 @@
 
     scopes_ref_execution_stack = [];
 
-    return_quad_pointer = [];
+    return_quad_pointer_stack = [];
 
     current_scope_ref = -1;
 
-    execution_state = {
-      scopes: {},
-    };
+    scopes = {};
 
     let i = 0;
     while (i < compiled_data.code_quads.length) {
@@ -84,7 +82,7 @@
       switch (quad.op_code) {
         case 'start':
           //Add global scope
-          add_scope_to_execution_state(current_scope_ref);
+          add_scope_to_execution_memory(current_scope_ref);
           //Add contants to global scope
           Object.keys(compiled_data.constants_table).forEach((key) => {
             let value;
@@ -103,7 +101,7 @@
           break;
         case 'main':
           //Add main scope
-          add_scope_to_execution_state(current_scope_ref);
+          add_scope_to_execution_memory(current_scope_ref);
           i++;
           break;
         case '+':
@@ -267,7 +265,7 @@
           i = quad.target;
           break;
         case 'era':
-          add_scope_to_execution_state(current_scope_ref);
+          add_scope_to_execution_memory(current_scope_ref);
           current_scope_ref--;
           i++;
           break;
@@ -281,7 +279,7 @@
           i++;
           break;
         case 'gosub':
-          return_quad_pointer.push(i + 1);
+          return_quad_pointer_stack.push(i + 1);
           current_scope_ref++;
           i = quad.target;
           break;
@@ -292,12 +290,12 @@
             value = get_value_from_address(quad.left);
           }
           set_value_global(quad.target, value);
-          delete_scope_from_execution_state();
-          i = return_quad_pointer.pop();
+          delete_scope_from_execution_memory();
+          i = return_quad_pointer_stack.pop();
           break;
         case 'endFunc':
-          delete_scope_from_execution_state();
-          i = return_quad_pointer.pop();
+          delete_scope_from_execution_memory();
+          i = return_quad_pointer_stack.pop();
           break;
         case 'ver':
           s1 = get_value_from_address(quad.target);
@@ -349,7 +347,6 @@
         case 'substr':
           // Check string length is within upper and lower bounds
           let lower;
-
           if (compiled_data.virtual_var_list.includes(quad.right[0])) {
             lower = get_value_from_address(get_value_from_address(quad.right[0]));
           } else {
@@ -361,9 +358,7 @@
           } else {
             upper = get_value_from_address(quad.right[1]);
           }
-
           let string = get_value_from_address(quad.left);
-
           if (lower < 0 || upper > string.length || lower > upper) {
             add_p_element_to_output_area('Error: Trying to access substring out of bounds');
             i = compiled_data.code_quads.length - 1;
@@ -536,7 +531,7 @@
           i++;
           break;
         case 'end':
-          console.log(execution_state);
+          console.log(scopes);
           i++;
           break;
         default:
@@ -547,9 +542,9 @@
   }
 
   // Add scope to execution state
-  function add_scope_to_execution_state(parent_ref) {
+  function add_scope_to_execution_memory(parent_ref) {
     scopes_ref_execution_stack.push(scopes_counter);
-    execution_state.scopes[scopes_counter] = {
+    scopes[scopes_counter] = {
       parent_ref,
       scope_memory: {},
     };
@@ -558,8 +553,8 @@
   }
 
   // Delete scope from execution state
-  function delete_scope_from_execution_state() {
-    delete execution_state.scopes[current_scope_ref];
+  function delete_scope_from_execution_memory() {
+    delete scopes[current_scope_ref];
     scopes_ref_execution_stack.pop();
     current_scope_ref = scopes_ref_execution_stack.at(-1);
     scopes_counter--;
@@ -570,7 +565,7 @@
     // Current scope of execution
     let aux_ref = current_scope_ref;
     while (aux_ref !== -1) {
-      let scope = execution_state.scopes[aux_ref];
+      let scope = scopes[aux_ref];
       // If address has a defines value return scope_ref
       if (scope.scope_memory[address] !== undefined) {
         return aux_ref;
@@ -590,10 +585,10 @@
     let aux_ref = get_scope_ref_from_address(address);
     if (aux_ref !== -1) {
       // Modify current value because it exists
-      execution_state.scopes[aux_ref].scope_memory[address] = value;
+      scopes[aux_ref].scope_memory[address] = value;
     } else {
       // Create new {address: value} pair in scope layer of current scope
-      execution_state.scopes[current_scope_ref].scope_memory[address] = value;
+      scopes[current_scope_ref].scope_memory[address] = value;
     }
   }
 
@@ -604,13 +599,13 @@
     }
     // Get scope ref where address is defined
     current_scope_ref++;
-    execution_state.scopes[current_scope_ref].scope_memory[address] = value;
+    scopes[current_scope_ref].scope_memory[address] = value;
     current_scope_ref--;
   }
 
   // Set value to global function address
   function set_value_global(address, value) {
-    execution_state.scopes[0].scope_memory[address] = value;
+    scopes[0].scope_memory[address] = value;
   }
 
   // Get value from address
@@ -619,7 +614,7 @@
     // Get scope ref where address is defined
     if (aux_ref !== -1) {
       // Return value for given address
-      return execution_state.scopes[aux_ref].scope_memory[address];
+      return scopes[aux_ref].scope_memory[address];
     }
   }
 
