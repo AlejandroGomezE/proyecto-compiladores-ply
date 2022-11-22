@@ -1,15 +1,30 @@
 program programa;
 
 main(){
-  var int a[5];
-  a[0] = 1;
-  a[1] = 2;
-  a[2] = 3;
-  a[3] = 4;
-  a[4] = 5;
-  print(avg(a));
-  print(max(a));
-  print(min(a));
-  print(sum(a));
-  print(len(a));
+  var int a[10];
+  var int i = 0;
+  var int j = 0;
+  while(i < 10){
+    a[i] = i;
+    i = i + 1;
+  }
+  i = 0;
+  var int temp = 0;
+  while(i < 10){
+    j = 0;
+    while(j < 10 - 1){
+      if(a[j] < a[j+1]){
+        temp = a[j];
+        a[j] = a[j + 1];
+        a[j + 1] = temp;
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  i = 0;
+  while(i < 10){
+    print(a[i]);
+    i = i + 1;
+  }
 }; 

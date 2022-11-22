@@ -161,7 +161,11 @@
           i++;
           break;
         case '=':
-          assign_value = get_value_from_address(quad.left);
+          if (compiled_data.virtual_var_list.includes(quad.left)) {
+            assign_value = get_value_from_address(get_value_from_address(quad.left));
+          } else {
+            assign_value = get_value_from_address(quad.left);
+          }
           if (compiled_data.virtual_var_list.includes(quad.target)) {
             set_value_to_address(get_value_from_address(quad.target), assign_value);
           } else {
@@ -301,13 +305,19 @@
           s1 = get_value_from_address(quad.target);
           if (!Number.isInteger(s1)) {
             add_p_element_to_output_area('Error: Trying to access array with non-integer index');
-            i = compiled_data.quad_list.length - 1;
+            i = compiled_data.code_quads.length - 1;
+            loading = false;
+            inputDisabled = true;
+            inputValue = '';
             break;
           }
-          let d1 = get_value_from_address(quad.right);
-          if (s1 < 0 || s1 > d1) {
+
+          if (s1 < 0 || s1 > quad.right - 1) {
             add_p_element_to_output_area('Error: Index out of bounds');
-            i = compiled_data.quad_list.length - 1;
+            i = compiled_data.code_quads.length - 1;
+            loading = false;
+            inputDisabled = true;
+            inputValue = '';
             break;
           }
           i++;

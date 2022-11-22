@@ -898,13 +898,13 @@ def p_array_reference_value(p):
         raise Exception(
             'Semantic error: Tried to access array "%s" with a non INT value.' % array_name)
 
-    d1_address = constants_table[d1]['addr']
     # Add to debug quad
-    quadruple_name_list.append(Quadruple(Operations.VER, 0, d1, s1))
+    quadruple_name_list.append(
+        Quadruple(Operations.VER, 0, d1, s1))
 
     # Add to addr quad
     quadruple_address_list.append(
-        Quadruple(Operations.VER, 0, d1_address, get_addr(s1, array_type)))
+        Quadruple(Operations.VER, 0, d1, get_addr(s1, array_type)))
 
     # Get address with QUAD
     virtual_var_name = create_temp_virtual_var()
