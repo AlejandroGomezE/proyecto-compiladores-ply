@@ -1,6 +1,6 @@
-# Tipo R
+# My Programming Language
 
-Proyecto de compiladores.
+University project.
 
 ## How to setup backend for scanning, parsing, and code generation
 
